@@ -4,7 +4,6 @@ from obspy import read
 from obspy import Trace
 import numpy as np
 import math
-import matplotlib.pyplot as plt
 
 def inicializar_sta_lta(traza, nsta, nlta):
     """
