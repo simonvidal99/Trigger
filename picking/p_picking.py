@@ -286,7 +286,8 @@ def p_picking_val(stations, ventana_10s, ventana_30s, nsta, nlta, v_P, coord_lis
 
 
 
-def p_picking_each(stations, ventana_10s, ventana_30s, nsta, nlta, thr_on, thr_off):
+def p_picking_each(station: obspy.core.stream.Stream , ventana_10s:int = 10, ventana_30s:int = 30, 
+                   nsta:float, nlta:float, thr_on:float, thr_off:float):
 
     """
     Función que realiza el picking de la onda P para solo una estación durante la traza completa y guarda los tiempos en que 
@@ -294,7 +295,7 @@ def p_picking_each(stations, ventana_10s, ventana_30s, nsta, nlta, thr_on, thr_o
 
     Entradas:
     ----------
-    stations: obspy.core.stream.Stream
+    station: obspy.core.stream.Stream
         Estación a analizar.
     ventana_10s: int
         Tiempo de desplazamiento de la ventana en segundos.
@@ -316,7 +317,7 @@ def p_picking_each(stations, ventana_10s, ventana_30s, nsta, nlta, thr_on, thr_o
     """
 
     # Elección de canal para la estación
-    tr_main = stations.select(channel='BHZ')[0]
+    tr_main = station.select(channel='BHZ')[0]
 
     # Frecuencia de muestreo
     fs = tr_main.stats.sampling_rate
