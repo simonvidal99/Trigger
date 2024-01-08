@@ -4,11 +4,11 @@ from obspy import read
 from obspy import Trace
 import numpy as np
 import math
-
+import matplotlib.pyplot as plt
 
 def inicializar_sta_lta(traza, nsta, nlta):
     """
-    Inicializa el cálculo STA/LTA para los primeros 30 segundos de la traza.
+    Inicializa el cálculo STA/LTA para los primeros 30 segundos de la traza.   
     """
     cft = classic_sta_lta(traza.data, int(nsta), int(nlta))
     return cft
