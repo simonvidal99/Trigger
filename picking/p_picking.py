@@ -37,8 +37,8 @@ def actualizar_sta_lta(traza_anterior, traza_nueva, nsta, nlta):
 def p_picking_all(stations, ventana_10s, ventana_30s, nsta, nlta, v_P, coord_list, thr_on, thr_off):
 
     """
-    Función que realiza el picking de la onda P. En caso de que se detecte un sismo en las estación principal,
-    se verifica que las estaciones adyacentes también lo detecten.
+    Función que realiza el picking de la onda P. Se calcula el sta/lta para todas las estaciones simultaneamente, cuando 
+    un estaciòn activa el trigger, se verifica con las dos estaciones màs cercanas.
 
 
     Entradas:
