@@ -285,7 +285,7 @@ def p_picking_val(stations, ventana_10s, ventana_30s, nsta, nlta, v_P, coord_lis
     return time_trigger_main, time_trigger_all
 
 
-def p_picking_each(station, ventana_10s ventana_30s, nsta, nlta, thr_on, thr_off):
+def p_picking_each(station, ventana_10s, ventana_30s, nsta, nlta, thr_on, thr_off):
 
     """
     Función que realiza el picking de la onda P para solo una estación durante la traza completa y guarda los tiempos en que 
