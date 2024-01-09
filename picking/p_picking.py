@@ -285,9 +285,7 @@ def p_picking_val(stations, ventana_10s, ventana_30s, nsta, nlta, v_P, coord_lis
     return time_trigger_main, time_trigger_all
 
 
-
-def p_picking_each(station: obspy.core.stream.Stream , ventana_10s:int = 10, ventana_30s:int = 30, 
-                   nsta:float, nlta:float, thr_on:float, thr_off:float):
+def p_picking_each(station, ventana_10s ventana_30s, nsta, nlta, thr_on, thr_off):
 
     """
     Función que realiza el picking de la onda P para solo una estación durante la traza completa y guarda los tiempos en que 
@@ -346,6 +344,9 @@ def p_picking_each(station: obspy.core.stream.Stream , ventana_10s:int = 10, ven
             time_main_str = new_tr_main.stats.starttime.strftime("%Y-%m-%dT%H:%M")
             # Creamos una lista separada para las comparaciones
             time_trigger_main_comp = [t.strftime("%Y-%m-%dT%H:%M") for t in time_trigger]
+
+            #durante los próximos 30 segundos buscamos el peak de la amplitud de la señal
+
             
             # No aseguramos de que el tiempo de inicio del sismo no se haya registrado antes
             if time_main_str not in time_trigger_main_comp:
