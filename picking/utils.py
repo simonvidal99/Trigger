@@ -47,11 +47,11 @@ def calculate_detection_times(df, stations_coord, v_P, magnitude_thr=3.5):
         if 'Fecha UTC' in col or 'Hora detección estación' in col:
             formatted_df[col] = formatted_df[col].apply(lambda time: time.strftime('%Y-%m-%dT%H:%M:%S') if pd.notnull(time) else '')
 
-    # Selecciona solo las columnas de tiempo y magnitud
-    time_columns = ['Fecha UTC', 'Magnitud'] + [f'Hora detección estación {station}' for station in stations_coord.keys()]
-    formatted_df = formatted_df[time_columns]
+    # Selecciona solo las columnas de tiempo, magnitud y distancia
+    columns = ['Fecha UTC', 'Magnitud'] + [f'Hora detección estación {station}' for station in stations_coord.keys()] + [f'Distancia a estación {station}' for station in stations_coord.keys()]
+    formatted_df = formatted_df[columns]
     
-    # Filtra eventos con magnitud mayor o igual a 3.5
+    # Filtra eventos con magnitud mayor o igual a un umbral 
     formatted_df = formatted_df[formatted_df['Magnitud'] >= magnitude_thr]
 
     return formatted_df

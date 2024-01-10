@@ -48,8 +48,8 @@ def plot_bar(resultados_totales, title, height=500, width=1000):
                          name='Falsos Negativos'))
 
     # Configurar diseño del gráfico
-    fig.update_layout(barmode='group', xaxis_tickangle=-45, title='TP, FP y FN por estación',
-                      xaxis=dict(title='Estación'), yaxis=dict(title=f'Métricas {title}'), height=height, width=width)
+    fig.update_layout(barmode='group', xaxis_tickangle=-45, title= f'TP, FP y FN por estación {title}',
+                      xaxis=dict(title='Estación'), yaxis=dict(title=f'Métricas'), height=height, width=width)
 
     # Ajustar el color y tamaño del texto
     fig.update_traces(textfont=dict(color='black', size=15))
