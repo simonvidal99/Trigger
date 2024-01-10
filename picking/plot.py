@@ -57,7 +57,7 @@ def plot_bar(resultados_totales, title, height=500, width=1000):
     # Mostrar el gráfico
     fig.show()
 
-def plot_differences_amount(resultados_before, resultados_after, plot_metrics = True, height=500, width=1000):
+def plot_differences_amount(resultados_before, resultados_after,title ,plot_metrics = True, height=500, width=1000):
     identificadores = [resultado['identificador'] for resultado in resultados_before]  # assuming same order
 
     if plot_metrics:
@@ -85,7 +85,7 @@ def plot_differences_amount(resultados_before, resultados_after, plot_metrics = 
         fig.add_trace(go.Bar(x=identificadores, y=metric_diff, text=metric_diff, name=metric_name))
 
     # Configure the chart layout
-    fig.update_layout(barmode='group', xaxis_tickangle=-45, title="Cambio por estación",
+    fig.update_layout(barmode='group', xaxis_tickangle=-45, title=f"Cambio por estación {title}",
                       xaxis=dict(title='Estación'), yaxis=dict(title='Cambio'), height=height, width=width)
 
     # Adjust the color and size of the text
@@ -96,7 +96,7 @@ def plot_differences_amount(resultados_before, resultados_after, plot_metrics = 
 
 
 
-def plot_differences_bar(resultados_before, resultados_after, plot_metrics=True, height=500, width=1000):
+def plot_differences_bar(resultados_before, resultados_after, title, plot_metrics=True, height=500, width=1000):
     identificadores = [resultado['identificador'] for resultado in resultados_before]  # assuming same order
 
     if plot_metrics:
@@ -136,7 +136,7 @@ def plot_differences_bar(resultados_before, resultados_after, plot_metrics=True,
             fig.add_annotation(x=j+0.2, y=y_pos_after, text=str(metrics_after[i][j]), showarrow=False, font=dict(color='white', size = 12), row=i+1, col=1)
 
     # Configure the chart layout
-    fig.update_layout(height=height, width=width, title_text="Cambio por estación")
+    fig.update_layout(height=height, width=width, title_text= f"Cambio por estación {title}")
 
     # Show the chart
     fig.show()
@@ -144,7 +144,7 @@ def plot_differences_bar(resultados_before, resultados_after, plot_metrics=True,
 
 
 
-def plot_differences_scatter(resultados_before, resultados_after, plot_metrics=True, height=500, width=1000):
+def plot_differences_scatter(resultados_before, resultados_after, title, plot_metrics=True, height=500, width=1000):
     identificadores = [resultado['identificador'] for resultado in resultados_before]  # assuming same order
 
     if plot_metrics:
@@ -185,7 +185,7 @@ def plot_differences_scatter(resultados_before, resultados_after, plot_metrics=T
             fig.add_annotation(x=identifier, y=metrics_after[i][j]+y_offset_after, text=str(metrics_after[i][j]), showarrow=False, font=dict(color='black', size=10), row=i+1, col=1)
 
     # Configure the chart layout
-    fig.update_layout(height=height, width=width, title_text="Cambio por estación")
+    fig.update_layout(height=height, width=width, title_text= f"Cambio por estación {title}")
 
     # Show the chart
     fig.show()
