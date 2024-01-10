@@ -1,7 +1,7 @@
 import plotly.graph_objects as go
 from plotly.subplots import make_subplots
 
-def plot_metrics(resultados_totales, height=500, width=1000):
+def plot_metrics(resultados_totales, title, height=500, width=1000):
 
     identificadores = [resultado['identificador'] for resultado in resultados_totales]
     precisiones = [resultado['presicion'] for resultado in resultados_totales]
@@ -17,7 +17,7 @@ def plot_metrics(resultados_totales, height=500, width=1000):
     fig.add_trace(go.Bar(x=identificadores, y=f1_scores, text=f1_scores, name='F1 Score'))
 
     # Configurar diseño del gráfico
-    fig.update_layout(barmode='group', xaxis_tickangle=-45, title='Métricas por estación',
+    fig.update_layout(barmode='group', xaxis_tickangle=-45, title=f'Métricas por estación {title}',
                       xaxis=dict(title='Estación'), yaxis=dict(title='Métricas'), height=height, width=width)
 
     # Ajustar el color y tamaño del texto
@@ -27,7 +27,7 @@ def plot_metrics(resultados_totales, height=500, width=1000):
     fig.show()
 
 # Graficar los verdaderos positivos, falsos positivos y falsos negativos
-def plot_bar(resultados_totales, height=500, width=1000):
+def plot_bar(resultados_totales, title, height=500, width=1000):
 
     identificadores = [resultado['identificador'] for resultado in resultados_totales]
 
@@ -49,7 +49,7 @@ def plot_bar(resultados_totales, height=500, width=1000):
 
     # Configurar diseño del gráfico
     fig.update_layout(barmode='group', xaxis_tickangle=-45, title='TP, FP y FN por estación',
-                      xaxis=dict(title='Estación'), yaxis=dict(title='Métricas'), height=height, width=width)
+                      xaxis=dict(title='Estación'), yaxis=dict(title=f'Métricas {title}'), height=height, width=width)
 
     # Ajustar el color y tamaño del texto
     fig.update_traces(textfont=dict(color='black', size=15))
