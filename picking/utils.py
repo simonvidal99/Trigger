@@ -20,6 +20,7 @@ from concurrent.futures import ThreadPoolExecutor, as_completed
 
 
 
+
 def calculate_detection_times(df, stations_coord, v_P, magnitude_thr=3.5):
     """
     Calcula los tiempos de detección de los eventos sísmicos reales en las distintas estaciones y guarda los resultados en un DataFrame.
@@ -39,6 +40,11 @@ def calculate_detection_times(df, stations_coord, v_P, magnitude_thr=3.5):
             lambda row: row['Fecha UTC'] + timedelta(seconds=geodesic((row['Latitud'], row['Longitud']), coords).kilometers / v_P),
             axis=1
         )
+        df[f'Distancia a estación {station}'] = df.apply(
+            lambda row: round(geodesic((row['Latitud'], row['Longitud']), coords).kilometers, 2),
+            axis=1
+        )
+
 
     formatted_df = df.copy()
     
@@ -55,6 +61,7 @@ def calculate_detection_times(df, stations_coord, v_P, magnitude_thr=3.5):
     formatted_df = formatted_df[formatted_df['Magnitud'] >= magnitude_thr]
 
     return formatted_df
+
 
 
 
