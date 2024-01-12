@@ -127,6 +127,7 @@ def optimize_parameters(pick_func, nsta_values, nlta_values, thr_on_values, thr_
     """
 
     best_params = {}
+
     # Número total de iteraciones
     total = len(nsta_values) * len(nlta_values) * len(thr_on_values)
 
@@ -172,14 +173,27 @@ def optimize_parameters(pick_func, nsta_values, nlta_values, thr_on_values, thr_
                 else:
                     f1_score = 0  # Si no hay verdaderos positivos ni falsos positivos, la precisión es 0
                 # Si el resultado actual es mejor que el mejor resultado hasta ahora, actualizar los mejores parámetros y el mejor resultado
-                if len(best_params) < 5 or f1_score > min(best_params.values()):
-                    if len(best_params) == 5:
-                        # eliminar la combinación de parámetros con el peor resultado
-                        worst_key = min(best_params, key=best_params.get)
-                        del best_params[worst_key]   
-                    # agregar la nueva combinación de parámetros y su resultado al diccionario
-                    best_params[(nsta, nlta, thr_on, thr_off)] = f1_score 
-                    #ic(best_params)
+                # SI estas trabajando con el catalogo de superiores a 4 grados, usamos precision como métrica 
+                if filename == 'times_events_24hrs_sup40.txt':
+                    if len(best_params) < 5 or presicion > min(best_params.values()):
+                        if len(best_params) == 5:
+                            # eliminar la combinación de parámetros con el peor ref1_score sultado
+                            worst_key = min(best_params, key=best_params.get)
+                            del best_params[worst_key]   
+                        # agregar la nueva combinación de parámetros y su resultado al diccionario
+                        best_params[(nsta, nlta, thr_on, thr_off)] = f1_score 
+                        #ic(best_params)
+
+                else:
+                
+                    if len(best_params) < 5 or f1_score > min(best_params.values()):
+                        if len(best_params) == 5:
+                            # eliminar la combinación de parámetros con el peor resultado
+                            worst_key = min(best_params, key=best_params.get)
+                            del best_params[worst_key]   
+                        # agregar la nueva combinación de parámetros y su resultado al diccionario
+                        best_params[(nsta, nlta, thr_on, thr_off)] = f1_score 
+                        #ic(best_params)
     return best_params
 
 
