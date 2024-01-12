@@ -197,50 +197,6 @@ def optimize_parameters(pick_func, nsta_values, nlta_values, thr_on_values, thr_
     return best_params
 
 
-def plot_differences_scatter1(resultados_before, resultados_after, title, plot_metrics=True, height=500, width=1000):
-    identificadores = [resultado['identificador'] for resultado in resultados_before]  # assuming same order
-
-    if plot_metrics:
-        # Plot precision, recall, and F1 score
-        metrics_before = [[round(before['presicion'], 2) for before in resultados_before],
-                          [round(before['recall'], 2) for before in resultados_before],
-                          [round(before['f1_score'], 2) for before in resultados_before]]
-        metrics_after = [[round(after['presicion'], 2) for after in resultados_after],
-                         [round(after['recall'], 2) for after in resultados_after],
-                         [round(after['f1_score'], 2) for after in resultados_after]]
-        metric_names = ['Precision', 'Recall', 'F1 Score']
-    else:
-        # Plot true positives, false negatives, and false positives
-        metrics_before = [[before['resultados']['Verdaderos Positivos'] for before in resultados_before],
-                          [before['resultados']['Falsos Negativos'] for before in resultados_before],
-                          [before['resultados']['Falsos Positivos'] for before in resultados_before]]
-        metrics_after = [[after['resultados']['Verdaderos Positivos'] for after in resultados_after],
-                         [after['resultados']['Falsos Negativos'] for after in resultados_after],
-                         [after['resultados']['Falsos Positivos'] for after in resultados_after]]
-        metric_names = ['Verdaderos Positivos', 'Falsos Negativos', 'Falsos Positivos']
-
-    # Create subplots: one row for each metric
-    fig = make_subplots(rows=3, cols=1)
-
-    for i, metric in enumerate(metric_names):
-        # Add traces for 'before' and 'after' for each metric
-        for j, identifier in enumerate(identificadores):
-            fig.add_trace(go.Scatter(x=[identifier, identifier], y=[metrics_before[i][j], metrics_after[i][j]], mode='lines+markers', name=f'{metric} sin val' if j == 0 else None), row=i+1, col=1)
-            fig.add_trace(go.Scatter(x=[identifier], y=[metrics_after[i][j]], mode='markers', name=f'{metric} con val' if j == 0 else None), row=i+1, col=1)
-
-            # Calculate a dynamic offset based on the y-coordinate of the data point
-            y_offset_before = 0.07 * metrics_before[i][j]
-            y_offset_after = 0.08 * metrics_after[i][j]
-
-            # Add the dynamic offset to the y parameter
-            fig.add_annotation(x=identifier, y=metrics_before[i][j]+y_offset_before, text=str(metrics_before[i][j]), showarrow=False, font=dict(color='black', size=10), row=i+1, col=1)
-            fig.add_annotation(x=identifier, y=metrics_after[i][j]+y_offset_after, text=str(metrics_after[i][j]), showarrow=False, font=dict(color='black', size=10), row=i+1, col=1)
-
-    # Configure the chart layout
-    fig.update_layout(height=height, width=width, title_text= f"Cambio por estación {title}")
-
-    # Show the chart
-    fig.show()
 
 
 
