@@ -36,7 +36,7 @@ def calculate_detection_times(df, stations_coord, v_P, magnitude_thr=3.5):
     - formatted_df: DataFrame con los tiempos de detección de los eventos sísmicos en todas las estaciones y la magnitud del evento
     """
     for station, coords in stations_coord.items():
-        df[f'Hora detección estación {station}'] = df.apply(
+        df[f'Inicio_{station}'] = df.apply(
             lambda row: row['Fecha UTC'] + timedelta(seconds=geodesic((row['Latitud'], row['Longitud']), coords).kilometers / v_P),
             axis=1
         )
@@ -50,15 +50,15 @@ def calculate_detection_times(df, stations_coord, v_P, magnitude_thr=3.5):
     
     # Formatea las columnas de tiempo
     for col in formatted_df.columns:
-        if 'Fecha UTC' in col or 'Hora detección estación' in col:
+        if 'Fecha UTC' in col or 'Inicio_' in col:
             formatted_df[col] = formatted_df[col].apply(lambda time: time.strftime('%Y-%m-%dT%H:%M:%S') if pd.notnull(time) else '')
 
     # Selecciona solo las columnas de tiempo, magnitud y distancia
-    columns = ['Fecha UTC', 'Magnitud'] + [f'Hora detección estación {station}' for station in stations_coord.keys()] + [f'Distancia a estación {station}' for station in stations_coord.keys()]
+    columns = ['Fecha UTC', 'Magnitud'] + [f'Inicio_{station}' for station in stations_coord.keys()] + [f'Distancia a estación {station}' for station in stations_coord.keys()]
     formatted_df = formatted_df[columns]
     
     # Filtra eventos con magnitud mayor o igual a un umbral 
-    formatted_df = formatted_df[formatted_df['Magnitud'] >= magnitude_thr]
+    formatted_df = formatted_df[formatted_df['Magnitud'] >= magnitude_thr]  
 
     return formatted_df
 
