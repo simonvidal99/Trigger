@@ -21,7 +21,7 @@ from concurrent.futures import ThreadPoolExecutor, as_completed
 
 
 
-def calculate_detection_times(df, stations_coord, v_P, magnitude_thr=3.5):
+def calculate_detection_times(df, stations_coord, v_P, magnitude_range=(3.5, 10.0)):
     """
     Calcula los tiempos de detección de los eventos sísmicos reales en las distintas estaciones y guarda los resultados en un DataFrame.
     Esto sería tener un DataFrame con el tiempo real de los eventos y el tiempo cuando deberían ser detectados por cada estación.
@@ -30,7 +30,7 @@ def calculate_detection_times(df, stations_coord, v_P, magnitude_thr=3.5):
     - df: DataFrame con los datos de los eventos sísmicos.
     - stations_coord: Diccionario con las coordenadas de las estaciones.
     - v_P: Velocidad de la onda P.
-    - magnitude_thr: Umbral de magnitud para filtrar los eventos sísmicos.
+    - magnitude_range: Tupla con el rango de magnitudes para filtrar los eventos sísmicos.
     
     Salida:
     - formatted_df: DataFrame con los tiempos de detección de los eventos sísmicos en todas las estaciones y la magnitud del evento
@@ -45,7 +45,6 @@ def calculate_detection_times(df, stations_coord, v_P, magnitude_thr=3.5):
             axis=1
         )
 
-
     formatted_df = df.copy()
     
     # Formatea las columnas de tiempo
@@ -57,10 +56,11 @@ def calculate_detection_times(df, stations_coord, v_P, magnitude_thr=3.5):
     columns = ['Fecha UTC', 'Magnitud'] + [f'Inicio_{station}' for station in stations_coord.keys()] + [f'Distancia a estación {station}' for station in stations_coord.keys()]
     formatted_df = formatted_df[columns]
     
-    # Filtra eventos con magnitud mayor o igual a un umbral 
-    formatted_df = formatted_df[formatted_df['Magnitud'] >= magnitude_thr]  
+    # Filtra eventos con magnitud dentro del rango especificado
+    formatted_df = formatted_df[(formatted_df['Magnitud'] >= magnitude_range[0]) & (formatted_df['Magnitud'] <= magnitude_range[1])]  
 
     return formatted_df
+
 
 
 
