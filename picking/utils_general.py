@@ -1,22 +1,22 @@
-import pandas as pd
-
-from geopy.distance import geodesic
-import numpy as np
-
-from datetime import datetime
-from datetime import timedelta
-
-from tqdm.auto import tqdm
-from icecream import ic
-from .p_picking import p_picking_all, p_picking_val, p_picking_each
+# Standard Library Imports
 import csv
-from itertools import product
 import os
 import pickle
+from datetime import datetime, timedelta
+from itertools import product
 
+# Third-Party Library Imports
+import numpy as np
+import pandas as pd
+from geopy.distance import geodesic
+from obspy import Trace
 from scipy.stats import norm
-
 from concurrent.futures import ThreadPoolExecutor, as_completed
+from tqdm.auto import tqdm
+from icecream import ic
+
+# Local Imports
+from .p_picking import p_picking_all, p_picking_val, p_picking_each
 
 
 
@@ -197,6 +197,51 @@ def optimize_parameters(pick_func, nsta_values, nlta_values, thr_on_values, thr_
     return best_params
 
 
+
+def remove_response(trace: Trace, inventory_filepath: str, remove_type: str = "obspy"):
+    """
+    Remove instrument response
+
+    Args:
+        trace (Trace): Trace object from obspy
+        inventory_folder (str): Path to inventory folder
+    """
+    from obspy import read_inventory
+
+    assert isinstance(trace, Trace), "trace must be a Trace object from obspy"
+
+    trace_removed = trace.copy()
+
+    inv = read_inventory(inventory_filepath)
+        # Remove instrument response
+    if remove_type == "obspy":
+        trace_removed.remove_response(
+            inventory=inv,
+            output="VEL",
+            zero_mean=False,
+        )
+    elif remove_type == "scalar":
+        resp = inv.get_response(seed_id=trace_removed.get_id(), datetime=trace_removed.stats.starttime)
+        #trace_removed.data *= 1/inv[0][0].response.instrument_sensitivity.value
+        trace_removed.data *= 1/resp.instrument_sensitivity.value
+        
+    """inv = read_inventory(inventory_filepath)
+        resp = inv.get_response(
+            seed_id=trace_removed.get_id(), 
+            datetime=trace_removed.stats.starttime)
+        poles = resp.get_paz().poles
+        zeros = resp.get_paz().zeros
+        #gain = np.prod(list(map(lambda stage: stage.stage_gain, resp.response_stages)))
+        sensitivity = resp.instrument_sensitivity.value
+        for stage in resp.response_stages[::-1]:
+            gain = stage.stage_gain
+            paz_sts2 = {'poles': poles,
+                'zeros': zeros,
+                'gain': 1/gain,
+                'sensitivity': sensitivity}
+            trace_removed.simulate(paz_remove=paz_sts2)"""
+
+    return trace_removed
 
 
 
