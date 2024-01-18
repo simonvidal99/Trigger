@@ -149,6 +149,7 @@ def plot_power(power_events, n_frames=1, use_log=False, height = 6, width = 4, e
         xlabel = 'Log de la ' + xlabel
 
     plt.xlim([4,15])
+    plt.ylim([0,50])
     plt.title(title)
     plt.xlabel(xlabel)
     plt.ylabel('Frecuencia')
@@ -184,7 +185,7 @@ def plot_power_each(power_events, n_frames=1, use_log=False, height = 6, width =
         title = 'Log de la ' + title
         xlabel = 'Log de la ' + xlabel
 
-    plt.xlim([4,15])
+    #plt.xlim([4,15])
     plt.title(title)
     plt.xlabel(xlabel)
     plt.ylabel('Frecuencia')
