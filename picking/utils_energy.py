@@ -123,7 +123,46 @@ def energy_power(signal, window_size = 160, sample_rate = 40, hop_lenght = 160):
     return energy, power
 
 
-def plot_power(power_events, n_frames=1, use_log=False):
+def plot_power(power_events, n_frames=1, use_log=False, height = 6, width = 4, event_type=None):
+    # Creamos una figura con un tamaño específico
+    plt.figure(figsize=(height, width))
+
+    # Definimos una lista de colores
+    colors = ['b', 'g', 'r', 'c', 'm', 'y', 'k']
+
+    for i, events in enumerate(power_events):
+        # Extraemos los primeros n elementos de cada array y calculamos su promedio
+        first_n_frames = [np.mean(evento[:n_frames]) for evento in events]
+
+        # Aplicamos la transformación logarítmica a los datos si use_log es True
+        if use_log:
+            first_n_frames = np.log10(first_n_frames)
+
+        # Creamos el histograma
+        plt.hist(first_n_frames, bins=10, edgecolor='black', color=colors[i % len(colors)], alpha=0.5, label=event_type[i] if event_type else None)
+
+    # Agregamos títulos y etiquetas
+    title = 'Potencia de los primeros {} frames'.format(n_frames)
+    xlabel = 'Potencia'
+    if use_log:
+        title = 'Log de la ' + title
+        xlabel = 'Log de la ' + xlabel
+
+    plt.xlim([4,15])
+    plt.title(title)
+    plt.xlabel(xlabel)
+    plt.ylabel('Frecuencia')
+
+    # Añadimos la leyenda si event_type no es None
+    if event_type:
+        plt.legend()
+
+    # Mostramos el gráfico
+    plt.show()
+
+
+
+def plot_power_each(power_events, n_frames=1, use_log=False, height = 6, width = 4, event_type=''):
     # Extraemos los primeros n elementos de cada array y calculamos su promedio
     first_n_frames = [np.mean(evento[:n_frames]) for evento in power_events]
 
@@ -132,21 +171,23 @@ def plot_power(power_events, n_frames=1, use_log=False):
         first_n_frames = np.log10(first_n_frames)
 
     # Creamos una figura con un tamaño específico
-    plt.figure(figsize=(6, 4))
+        
+    plt.figure(figsize=(height, width))
 
     # Creamos el histograma
     plt.hist(first_n_frames, bins=10, edgecolor='black')
 
     # Agregamos títulos y etiquetas
-    title = 'Potencia promedio de los primeros {} frames'.format(n_frames)
+    title = 'Potencia de los primeros {} frames {}'.format(n_frames, event_type)
     xlabel = 'Potencia'
     if use_log:
         title = 'Log de la ' + title
         xlabel = 'Log de la ' + xlabel
+
+    plt.xlim([4,15])
     plt.title(title)
     plt.xlabel(xlabel)
     plt.ylabel('Frecuencia')
 
     # Mostramos el gráfico
     plt.show()
-
