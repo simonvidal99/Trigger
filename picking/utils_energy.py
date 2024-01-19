@@ -7,6 +7,7 @@ import matplotlib.pyplot as plt
 import matplotlib.dates as mdates
 import matplotlib.gridspec as gridspec
 import matplotlib.cm as cm
+from sklearn.metrics import roc_curve, auc, confusion_matrix, ConfusionMatrixDisplay
 
 
 
@@ -124,24 +125,28 @@ def energy_power(signal, window_size = 160, sample_rate = 40, hop_lenght = 160):
 
 
 def plot_power(power_events, n_frames=1, use_log=False, height = 6, width = 4, event_type=None):
-    # Creamos una figura con un tamaño específico
+
     plt.figure(figsize=(height, width))
 
     # Definimos una lista de colores
     colors = ['b', 'g', 'r', 'c', 'm', 'y', 'k']
 
     for i, events in enumerate(power_events):
+        # Si el evento tiene menos de n_frames, lo llenamos con ceros
+        #events_padded = [np.pad(evento, (0, max(0, n_frames - len(evento))), 'constant') for evento in events]
+
         # Extraemos los primeros n elementos de cada array y calculamos su promedio
         first_n_frames = [np.mean(evento[:n_frames]) for evento in events]
+
+        #first_n_frames = [np.mean(evento[:n_frames]) for evento in events_padded]
+
 
         # Aplicamos la transformación logarítmica a los datos si use_log es True
         if use_log:
             first_n_frames = np.log10(first_n_frames)
 
-        # Creamos el histograma
         plt.hist(first_n_frames, bins=10, edgecolor='black', color=colors[i % len(colors)], alpha=0.5, label=event_type[i] if event_type else None)
 
-    # Agregamos títulos y etiquetas
     title = 'Potencia de los primeros {} frames'.format(n_frames)
     xlabel = 'Potencia'
     if use_log:
@@ -158,7 +163,7 @@ def plot_power(power_events, n_frames=1, use_log=False, height = 6, width = 4, e
     if event_type:
         plt.legend()
 
-    # Mostramos el gráfico
+
     plt.show()
 
 
@@ -191,4 +196,54 @@ def plot_power_each(power_events, n_frames=1, use_log=False, height = 6, width =
     plt.ylabel('Frecuencia')
 
     # Mostramos el gráfico
+    plt.show()
+
+
+
+def plot_confusion_matrix(threshold, title, labels, log_data, classes):
+    predicted_labels = np.array([1 if x >= threshold else 0 for x in log_data])
+
+    cm = confusion_matrix(labels, predicted_labels)
+
+    # Normalize the confusion matrix
+    cm_normalized = cm.astype('float') / cm.sum(axis=1)[:, np.newaxis]
+
+    # Set up subplots
+    fig, axs = plt.subplots(1, 2, figsize=(12, 4))
+
+    # Plot the original confusion matrix
+    im1 = axs[0].imshow(cm, cmap='coolwarm')
+    axs[0].set_title(f'CM {title}')
+    axs[0].set_xlabel('Predicted')
+    axs[0].set_ylabel('True')
+
+    for i in range(len(classes)):
+        for j in range(len(classes)):
+            text = axs[0].text(j, i, str(cm[i, j]), ha='center', va='center', color='white', fontsize=14, fontweight='bold')
+
+    cbar1 = plt.colorbar(im1, ax=axs[0])
+
+    axs[0].set_xticks(np.arange(len(classes)))
+    axs[0].set_yticks(np.arange(len(classes)))
+    axs[0].set_xticklabels(classes)
+    axs[0].set_yticklabels(classes)
+
+    # Plot the normalized confusion matrix
+    im2 = axs[1].imshow(cm_normalized, cmap='coolwarm', vmin=0, vmax=1)
+    axs[1].set_title(f'Normalized CM {title}')
+    axs[1].set_xlabel('Predicted')
+    axs[1].set_ylabel('True')
+
+    for i in range(len(classes)):
+        for j in range(len(classes)):
+            text = axs[1].text(j, i, f'{cm_normalized[i, j]*100:.2f}%', ha='center', va='center', color='white', fontsize=14, fontweight='bold')
+
+    cbar2 = plt.colorbar(im2, ax=axs[1])
+
+    axs[1].set_xticks(np.arange(len(classes)))
+    axs[1].set_yticks(np.arange(len(classes)))
+    axs[1].set_xticklabels(classes)
+    axs[1].set_yticklabels(classes)
+
+    plt.tight_layout()
     plt.show()
