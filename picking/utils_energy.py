@@ -8,8 +8,35 @@ import matplotlib.dates as mdates
 import matplotlib.gridspec as gridspec
 import matplotlib.cm as cm
 from sklearn.metrics import roc_curve, auc, confusion_matrix, ConfusionMatrixDisplay
+from obspy import read, UTCDateTime
 
+def nearest_station(file_path: str, stations_names:dict,  ):
+    '''
+     Creamos una lista con el tiempo de partida de cada evento para la estación más cercana y una lista con el nombre de la estación más cercana para cada evento
+    '''
 
+    # Lee los datos
+    df = pd.read_csv(file_path)
+
+    results = {}
+
+    # Itera sobre cada fila del DataFrame
+    for i, fila in df.iterrows():
+        
+        # Obtiene las horas de detección en las estaciones. Esto se debe cambiar según las estaciones que tenga para analizar
+        horas_deteccion = [fila['Inicio_CO10'], fila['Inicio_AC04'], fila['Inicio_AC05'], fila['Inicio_CO05']]
+        
+        # Encuentra el índice de la estación más cercana
+        indice_estacion_cercana = horas_deteccion.index(min(horas_deteccion))
+        
+        # Guarda la estación más cercana y la hora de detección correspondiente en el diccionario
+        results[i+1] = [stations_names[indice_estacion_cercana], horas_deteccion[indice_estacion_cercana]]
+
+    
+    start_time = [UTCDateTime(results[clave][1]) for clave in sorted(results)]
+    closest_st_names = [results[clave][0] for clave in sorted(results)]
+
+    return start_time, closest_st_names
 
 
 
@@ -103,6 +130,8 @@ def endpoint_event(signal, thr_energy = 0.03, frame_size = 160):
 
     endpoint_energy = endpoint_energy*frame_size  #porel largo del frame ya que endpoint energy entrega el frame donde se bajo del 3%, entonces necesitamos esto para tenerlo en muestras
     return peak_index_energy, endpoint_energy
+    
+
 
 
 def energy_power(signal, window_size = 160, sample_rate = 40, hop_lenght = 160):
@@ -253,3 +282,9 @@ def plot_confusion_matrix(threshold, title, labels, log_data, classes):
 
     plt.tight_layout()
     plt.show()
+
+
+
+if __name__ == '__main__':
+    
+    print('que pasa jiles culiaooos')
