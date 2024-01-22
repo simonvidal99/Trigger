@@ -118,34 +118,40 @@ def energy_power(signal, window_size = 160, sample_rate = 40, hop_lenght = 160):
     #])
 
     # Calcular la potencia como la tasa de cambio de energía con respecto al tiempo
-    power = energy / (window_size / sample_rate) #basicamente energía dividio en el tiempo de cada frame. En este caso el frame sería el window_size
-    #power = np.mean(energy)
+    #power = energy / (window_size / sample_rate) #basicamente energía dividio en el tiempo de cada frame. En este caso el frame sería el window_size
+    power = np.cumsum(energy) / ((np.arange(len(energy)) + 1) * window_size / sample_rate) # se calcula la potencia como la suma de la energía dividida en el tiempo
 
     return energy, power
 
 
-def plot_power(power_events, n_frames=1, use_log=False, height = 6, width = 4, event_type=None):
+
+
+def plot_power(power_events, n_frames=1, use_log=False, height = 6, width = 4, event_type=None, use_mean = False):
 
     plt.figure(figsize=(height, width))
 
     # Definimos una lista de colores
     colors = ['b', 'g', 'r', 'c', 'm', 'y', 'k']
 
+    # Encontrar la longitud máxima del array más largo en power_events
+    max_len = max(max(len(eventos) for eventos in events) for events in power_events)
+
     for i, events in enumerate(power_events):
-        # Si el evento tiene menos de n_frames, lo llenamos con ceros
-        #events_padded = [np.pad(evento, (0, max(0, n_frames - len(evento))), 'constant') for evento in events]
 
-        # Extraemos los primeros n elementos de cada array y calculamos su promedio
-        first_n_frames = [np.mean(evento[:n_frames]) for evento in events]
-
-        #first_n_frames = [np.mean(evento[:n_frames]) for evento in events_padded]
-
-
-        # Aplicamos la transformación logarítmica a los datos si use_log es True
+        if use_mean:
+        # En caso de querer considerar el hecho de tomar más frames luego de que el evento haya finalizado como parte del calculo de la potencia
+        # (dudo, ya que tenemos el criterio del 3% de la energía para saber si un evento terminó), paddeamos con zeros los arrays más pequeños para que 
+        # tengan suficientes frames para "cubir" n_frames y para el calculo de la potencia ahora estos 0's se consideran. Es decir la potencia pasa a ser ahora
+        # el último valor del array (potencia del ultimo frame que sería la potencia de la señal, energía total sobre el tiempo del evento) promediado con la cantidad
+        # de ceros que hayan de padding.
+            first_n_frames = [np.mean(np.pad(eventos, (0, max_len - len(eventos)), 'constant')[:n_frames]) if len(eventos) < max_len else eventos[n_frames-1] for eventos in events]
+        else:
+            first_n_frames = [eventos[min(n_frames-1, len(eventos)-1)] for eventos in events]           
         if use_log:
             first_n_frames = np.log10(first_n_frames)
 
         plt.hist(first_n_frames, bins=10, edgecolor='black', color=colors[i % len(colors)], alpha=0.5, label=event_type[i] if event_type else None)
+               
 
     title = 'Potencia de los primeros {} frames'.format(n_frames)
     xlabel = 'Potencia'
