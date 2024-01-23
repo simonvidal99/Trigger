@@ -3,6 +3,7 @@ import datetime
 
 # Third-Party Library Imports
 import numpy as np
+import pandas as pd
 import matplotlib.pyplot as plt
 import matplotlib.dates as mdates
 import matplotlib.gridspec as gridspec
@@ -10,7 +11,9 @@ import matplotlib.cm as cm
 from sklearn.metrics import roc_curve, auc, confusion_matrix, ConfusionMatrixDisplay
 from obspy import read, UTCDateTime
 
-def nearest_station(file_path: str, stations_names:dict,  ):
+
+
+def nearest_station(file_path: str, stations_names:list):
     '''
      Creamos una lista con el tiempo de partida de cada evento para la estación más cercana y una lista con el nombre de la estación más cercana para cada evento
     '''
@@ -175,6 +178,7 @@ def plot_power(power_events, n_frames=1, use_log=False, height = 6, width = 4, e
         # de ceros que hayan de padding.
             first_n_frames = [np.mean(np.pad(eventos, (0, max_len - len(eventos)), 'constant')[:n_frames]) if len(eventos) < max_len else eventos[n_frames-1] for eventos in events]
         else:
+            # se toma el frame pedido o bien el último frame si es que el frame que se ingresó como parámetro supera la cantidad existente
             first_n_frames = [eventos[min(n_frames-1, len(eventos)-1)] for eventos in events]           
         if use_log:
             first_n_frames = np.log10(first_n_frames)
@@ -233,6 +237,45 @@ def plot_power_each(power_events, n_frames=1, use_log=False, height = 6, width =
     # Mostramos el gráfico
     plt.show()
 
+
+def plot_energy_hist(energy_events, frame=1, use_log=False, height = 6, width = 4, event_type=None):
+    
+    plt.figure(figsize=(height, width))
+
+    # Definimos una lista de colores
+    colors = ['b', 'g', 'r', 'c', 'm', 'y', 'k']
+
+    # Encontrar la longitud máxima del array más largo en power_events
+    max_len = max(max(len(eventos) for eventos in events) for events in energy_events)
+
+    for i, events in enumerate(energy_events):
+
+        energy_frame = [eventos[frame-1] if len(eventos) > frame-1 else 1 for eventos in events]
+
+        if use_log:
+            energy_frame = np.log10(energy_frame)
+
+        plt.hist(energy_frame, bins=10, edgecolor='black', color=colors[i % len(colors)], alpha=0.5, label=event_type[i] if event_type else None)
+               
+
+    title = 'Energía en el frame {}'.format(frame)
+    xlabel = 'Energía'
+    if use_log:
+        title = 'Log de la ' + title
+        xlabel = 'Log de la ' + xlabel
+
+    plt.xlim([4,15])
+    plt.ylim([0,50])
+    plt.title(title)
+    plt.xlabel(xlabel)
+    plt.ylabel('Frecuencia')
+
+    # Añadimos la leyenda si event_type no es None
+    if event_type:
+        plt.legend()
+
+
+    plt.show()
 
 
 def plot_confusion_matrix(threshold, title, labels, log_data, classes):
