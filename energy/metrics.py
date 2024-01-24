@@ -11,8 +11,10 @@ import matplotlib.cm as cm
 from sklearn.metrics import roc_curve, auc, confusion_matrix, ConfusionMatrixDisplay
 from obspy import read, UTCDateTime
 
+plt.rcParams['figure.constrained_layout.use'] = True
 
-def plot_roc_curve(labels, data, title='Receiver Operating Characteristic (ROC) Curve', xlabel='False Positive Rate', ylabel='True Positive Rate', legend_loc="lower right"):
+
+def plot_roc_curve(labels, station, data, title='Receiver Operating Characteristic (ROC) Curve', xlabel='False Positive Rate', ylabel='True Positive Rate', legend_loc="lower right"):
 
     fpr, tpr, _ = roc_curve(labels, data)
     roc_auc = auc(fpr, tpr)
@@ -30,7 +32,7 @@ def plot_roc_curve(labels, data, title='Receiver Operating Characteristic (ROC) 
 
     plt.xlabel(xlabel, fontsize=12)
     plt.ylabel(ylabel, fontsize=12)
-    plt.title(title, fontsize=14)
+    plt.title(f'{title}. Station {station}', fontsize=14)
     
     # grid
     plt.grid(True, linestyle='--', alpha=0.6)

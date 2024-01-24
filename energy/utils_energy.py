@@ -10,8 +10,9 @@ import matplotlib.gridspec as gridspec
 import matplotlib.cm as cm
 from sklearn.metrics import roc_curve, auc, confusion_matrix, ConfusionMatrixDisplay
 from obspy import read, UTCDateTime
+from astropy.visualization import hist
 
-
+plt.rcParams['figure.constrained_layout.use'] = True
 
 def nearest_station(file_path: str, stations_names:list):
     '''
@@ -40,6 +41,35 @@ def nearest_station(file_path: str, stations_names:list):
     closest_st_names = [results[clave][0] for clave in sorted(results)]
 
     return start_time, closest_st_names
+
+
+def nearest_two_stations(file_path: str, stations_names:list):
+    '''
+     Creamos una lista con el tiempo de partida de cada evento para las dos estaciones más cercanas y una lista con los nombres de las dos estaciones más cercanas para cada evento
+    '''
+
+    # Lee los datos
+    df = pd.read_csv(file_path)
+
+    results = {}
+
+    # Itera sobre cada fila del DataFrame
+    for i, fila in df.iterrows():
+        
+        # Obtiene las horas de detección en las estaciones. Esto se debe cambiar según las estaciones que tenga para analizar
+        horas_deteccion = [fila['Inicio_CO10'], fila['Inicio_AC04'], fila['Inicio_AC05'], fila['Inicio_CO05']]
+        
+        # Encuentra los índices de las dos estaciones más cercanas
+        indices_estaciones_cercanas = sorted(range(len(horas_deteccion)), key=lambda k: horas_deteccion[k])[:2]
+        
+        # Guarda las dos estaciones más cercanas y las horas de detección correspondientes en el diccionario
+        results[i+1] = [[stations_names[indice] for indice in indices_estaciones_cercanas], [horas_deteccion[indice] for indice in indices_estaciones_cercanas]]
+
+    start_times = [[UTCDateTime(results[clave][1][j]) for clave in sorted(results)] for j in range(2)]
+    closest_st_names = [[results[clave][0][j] for clave in sorted(results)] for j in range(2)]
+
+    return start_times, closest_st_names
+
 
 
 
@@ -157,8 +187,7 @@ def energy_power(signal, window_size = 160, sample_rate = 40, hop_lenght = 160):
 
 
 
-
-def plot_power(power_events, n_frames=1, use_log=False, height = 6, width = 4, event_type=None, use_mean = False):
+def plot_power(power_events, station, n_frames=1, use_log=False, height=6, width=4, event_type=None, use_mean=False):
 
     plt.figure(figsize=(height, width))
 
@@ -171,29 +200,45 @@ def plot_power(power_events, n_frames=1, use_log=False, height = 6, width = 4, e
     for i, events in enumerate(power_events):
 
         if use_mean:
-        # En caso de querer considerar el hecho de tomar más frames luego de que el evento haya finalizado como parte del calculo de la potencia
-        # (dudo, ya que tenemos el criterio del 3% de la energía para saber si un evento terminó), paddeamos con zeros los arrays más pequeños para que 
-        # tengan suficientes frames para "cubir" n_frames y para el calculo de la potencia ahora estos 0's se consideran. Es decir la potencia pasa a ser ahora
-        # el último valor del array (potencia del ultimo frame que sería la potencia de la señal, energía total sobre el tiempo del evento) promediado con la cantidad
-        # de ceros que hayan de padding.
+            # En caso de querer considerar el hecho de tomar más frames luego de que el evento haya finalizado como parte del cálculo de la potencia
+            # (dudo, ya que tenemos el criterio del 3% de la energía para saber si un evento terminó), paddeamos con zeros los arrays más pequeños para que 
+            # tengan suficientes frames para "cubrir" n_frames y para el cálculo de la potencia ahora estos 0's se consideran. Es decir, la potencia pasa a ser ahora
+            # el último valor del array (potencia del último frame que sería la potencia de la señal, energía total sobre el tiempo del evento) promediado con la cantidad
+            # de ceros que hayan de padding.
             first_n_frames = [np.mean(np.pad(eventos, (0, max_len - len(eventos)), 'constant')[:n_frames]) if len(eventos) < max_len else eventos[n_frames-1] for eventos in events]
         else:
             # se toma el frame pedido o bien el último frame si es que el frame que se ingresó como parámetro supera la cantidad existente
-            first_n_frames = [eventos[min(n_frames-1, len(eventos)-1)] for eventos in events]           
+            first_n_frames = [eventos[min(n_frames-1, len(eventos)-1)] for eventos in events]
+
         if use_log:
             first_n_frames = np.log10(first_n_frames)
 
-        plt.hist(first_n_frames, bins=10, edgecolor='black', color=colors[i % len(colors)], alpha=0.5, label=event_type[i] if event_type else None)
-               
+        # plt.hist(
+        #     first_n_frames,
+        #     bins=40,  # Aumenta la cantidad de bins
+        #     edgecolor='black',
+        #     color=colors[i % len(colors)],
+        #     alpha=0.6,  # Ajusta la transparencia
+        #     label=event_type[i] if event_type else None
+        # )
+            
+            hist(first_n_frames, 
+                 bins='knuth',
+                 edgecolor='black', 
+                 color=colors[i % len(colors)], 
+                 #histtype='stepfilled',
+                 alpha=0.6, 
+                 label=event_type[i] if event_type else None,
+                 density=False)
 
-    title = 'Potencia de los primeros {} frames'.format(n_frames)
+    title = 'Potencia de los primeros {} frames. Station {}'.format(n_frames, station)
     xlabel = 'Potencia'
     if use_log:
         title = 'Log de la ' + title
         xlabel = 'Log de la ' + xlabel
 
-    plt.xlim([4,15])
-    plt.ylim([0,50])
+    plt.xlim([4, 15])
+    plt.ylim([0, 50])
     plt.title(title)
     plt.xlabel(xlabel)
     plt.ylabel('Frecuencia')
@@ -202,12 +247,11 @@ def plot_power(power_events, n_frames=1, use_log=False, height = 6, width = 4, e
     if event_type:
         plt.legend()
 
-
     plt.show()
 
 
 
-def plot_power_each(power_events, n_frames=1, use_log=False, height = 6, width = 4, event_type=''):
+def plot_power_each(power_events, station, n_frames=1, use_log=False, height = 6, width = 4, event_type=''):
     # Extraemos los primeros n elementos de cada array y calculamos su promedio
     first_n_frames = [np.mean(evento[:n_frames]) for evento in power_events]
 
@@ -220,10 +264,19 @@ def plot_power_each(power_events, n_frames=1, use_log=False, height = 6, width =
     plt.figure(figsize=(height, width))
 
     # Creamos el histograma
-    plt.hist(first_n_frames, bins=10, edgecolor='black')
+    #plt.hist(first_n_frames, bins=10, edgecolor='black')
+
+    hist(first_n_frames, 
+        bins='knuth',
+        edgecolor='black', 
+        #color=colors[i % len(colors)], 
+        #histtype='stepfilled',
+        alpha=0.6, 
+        #label=event_type[i] if event_type else None,
+        density=False)
 
     # Agregamos títulos y etiquetas
-    title = 'Potencia de los primeros {} frames {}'.format(n_frames, event_type)
+    title = 'Potencia de los primeros {} frames {}. Estación'.format(n_frames, event_type, station)
     xlabel = 'Potencia'
     if use_log:
         title = 'Log de la ' + title
@@ -238,7 +291,7 @@ def plot_power_each(power_events, n_frames=1, use_log=False, height = 6, width =
     plt.show()
 
 
-def plot_energy_hist(energy_events, frame=1, use_log=False, height = 6, width = 4, event_type=None):
+def plot_energy_hist(energy_events, station, frame=1, use_log=False, height = 6, width = 4, event_type=None):
     
     plt.figure(figsize=(height, width))
 
@@ -255,10 +308,19 @@ def plot_energy_hist(energy_events, frame=1, use_log=False, height = 6, width = 
         if use_log:
             energy_frame = np.log10(energy_frame)
 
-        plt.hist(energy_frame, bins=10, edgecolor='black', color=colors[i % len(colors)], alpha=0.5, label=event_type[i] if event_type else None)
+        #plt.hist(energy_frame, bins=10, edgecolor='black', color=colors[i % len(colors)], alpha=0.5, label=event_type[i] if event_type else None)
+
+        hist(energy_frame, 
+            bins='knuth',
+            edgecolor='black', 
+            color=colors[i % len(colors)], 
+            #histtype='stepfilled',
+            alpha=0.6, 
+            label=event_type[i] if event_type else None,
+            density=False)
                
 
-    title = 'Energía en el frame {}'.format(frame)
+    title = 'Energía en el frame {}. Estación'.format(frame, station)
     xlabel = 'Energía'
     if use_log:
         title = 'Log de la ' + title
@@ -278,7 +340,7 @@ def plot_energy_hist(energy_events, frame=1, use_log=False, height = 6, width = 
     plt.show()
 
 
-def plot_confusion_matrix(threshold, title, labels, log_data, classes):
+def plot_confusion_matrix(threshold, station, title, labels, log_data, classes):
     predicted_labels = np.array([1 if x >= threshold else 0 for x in log_data])
 
     cm = confusion_matrix(labels, predicted_labels)
@@ -291,7 +353,7 @@ def plot_confusion_matrix(threshold, title, labels, log_data, classes):
 
     # Plot the original confusion matrix
     im1 = axs[0].imshow(cm, cmap='coolwarm')
-    axs[0].set_title(f'CM {title}')
+    axs[0].set_title(f'CM {title}. Station {station}')
     axs[0].set_xlabel('Predicted')
     axs[0].set_ylabel('True')
 
