@@ -22,13 +22,13 @@ from metrics import *
 
 
 # Este script es una copia en .py del jupyter energy.ipynb
-file_path = "catalog_new_events.txt" # catalogo de eventos sobre 4
+file_path = "sismos_txt/times_events_over_four.txt" # catalogo de eventos sobre 4
 inventory_path = "inventory"
 stations_names = ['CO10','AC04', 'AC05', 'CO05']
 pre_event = 0
 sample_rate = 40
 
-events_under_four = "times_events_under_four.txt" # catalogo de eventos bajo 4
+events_under_four = "sismos_txt/times_events_under_four.txt" # catalogo de eventos bajo 4
 
 #no_event_file = 'no_event_intervals.txt' # df de tiempos de trazas sin eventos
 intervals = 1273 # intervalos de tiempo que voy a tomar, i.e. trazas de tiempo de ruido que voy a tomar
@@ -83,13 +83,13 @@ def main(station: str):
         start_time_over_four, closest_st_names_over_four = start_times_over_four[0], closest_sts_names_over_four[0]
         start_time_under_four, closest_st_under_four = start_times_under_four[0], closest_sts_under_four[0]
         station_no_event = ['CO10']
-        no_event_file = 'no_event_intervals_CO10.txt'
+        no_event_file = 'sismos_txt/no_event_intervals_CO10.txt'
 
     elif station == "second":
         start_time_over_four, closest_st_names_over_four = start_times_over_four[1], closest_sts_names_over_four[1]
         start_time_under_four, closest_st_under_four = start_times_under_four[1], closest_sts_under_four[1]
         station_no_event = ['AC04']
-        no_event_file = 'no_event_intervals_AC04.txt'
+        no_event_file = 'sismos_txt/no_event_intervals_AC04.txt'
 
     # ------------------------------------
     # Events M>=4 processing
