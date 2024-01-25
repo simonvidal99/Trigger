@@ -20,31 +20,29 @@ from utils_energy import *
 from preprocessing import *
 from metrics import *
 
-
-# Este script es una copia en .py del jupyter energy.ipynb
-file_path = "sismos_txt/times_events_over_four.txt" # catalogo de eventos sobre 4
-inventory_path = "inventory"
+# Definimos paths que son necesarios. 
+xls_events = 'Eventos_24hrs.xlsx' # Catálogo original de eventos
+inventory_path = "inventory" # para quitar la respuesta del instrumento
 stations_names = ['CO10','AC04', 'AC05', 'CO05']
-pre_event = 0
+# Station coordinates
+stations_coord = {
+    'CO10': (-29.24, -71.46),
+    'AC04': (-28.20, -71.07),
+    'AC05': (-28.84, -70.27),
+    'CO05': (-29.92, -71.24)
+    
+}
+
 sample_rate = 40
-
-events_under_four = "sismos_txt/times_events_under_four.txt" # catalogo de eventos bajo 4
-
-#no_event_file = 'no_event_intervals.txt' # df de tiempos de trazas sin eventos
 intervals = 1273 # intervalos de tiempo que voy a tomar, i.e. trazas de tiempo de ruido que voy a tomar
 
-#station_no_event = ['CO10']
-
-event_type = ['$M \geq 4$', '$M < 4$', 'Ruido (sin eventos)']
-
-classes_1 = ['No Event', 'Event']
-classes_2 = ['No M>=4', 'M>=4']
-
-
+# P-wave propagation speed
+v_P = 8.064
 
 # ------------------------------------
 # Preprocessing
 # ------------------------------------
+# Se quita la respuesta instrumental
 files_bhz = find_files("señales_sismos/BHZ", ['.mseed'])
 files_bhz_ch, key_names_bhz = sort_files(files_bhz, '.mseed')
 processed_stations = {}
@@ -53,58 +51,66 @@ for station in key_names_bhz:
     processed_stations[station] = process_station(files_bhz_ch, station, inventory_path)
 
 
-st_AC04 = processed_stations[key_names_bhz[0]]
-st_AC05 = processed_stations[key_names_bhz[1]]
-st_CO05 = processed_stations[key_names_bhz[2]]
-st_CO10 = processed_stations[key_names_bhz[3]]
+st_AC04_BHZ = processed_stations[key_names_bhz[0]].select(channel='BHZ')
+st_AC05_BHZ = processed_stations[key_names_bhz[1]].select(channel='BHZ')
+st_CO05_BHZ  = processed_stations[key_names_bhz[2]].select(channel='BHZ')
+st_CO10_BHZ = processed_stations[key_names_bhz[3]].select(channel='BHZ')
 
-st_AC04_BHZ = st_AC04.select(channel='BHZ')
-st_AC05_BHZ = st_AC05.select(channel='BHZ')
-st_CO05_BHZ = st_CO05.select(channel='BHZ')
-st_CO10_BHZ = st_CO10.select(channel='BHZ')
 
-# Crear un diccionario para mapear los nombres de las estaciones a las estaciones
+# Crear un diccionario para mapear los nombres de las estaciones a las trazas de las estaciones
 stations_dic = {name: globals()[f'st_{name}_BHZ'][0] for name in stations_names}
 
 
-def main(station: str):
+def main2(station: str, magnitude):
+
+    # ------------------------------------
+    # Separing the data using the magnitude given in the input
+    # ------------------------------------
+
+    # Read Excel file
+    df = pd.read_excel(xls_events)
+
+    # Calculate detection times and format DataFrame
+    df_over = calculate_detection_times(df, stations_coord, v_P, magnitude_range = (magnitude,10))
+    df_under = calculate_detection_times(df, stations_coord, v_P, magnitude_range = (0,magnitude-0.1))
+
 
     # ------------------------------------
     # Events M>=4 and M<4 station selection
     # ------------------------------------
 
     # Getting beggining and end of the events for the 2 closest stations 
-    #start_time_over_four, closest_st_names_over_four = nearest_station(file_path, stations_names)
-    start_times_over_four, closest_sts_names_over_four  = nearest_two_stations(file_path, stations_names)
-    start_times_under_four, closest_sts_under_four = nearest_two_stations(events_under_four, stations_names)
+    #start_time_over, closest_st_names_over = nearest_station(file_path, stations_names)
+    start_times_over, closest_sts_names_over  = nearest_two_stations(df_over, stations_names)
+    start_times_under, closest_sts_under = nearest_two_stations(df_under, stations_names)
 
     # Here we choose wether we are going to work with the closest or with the second closest
     if station == "first":
-        start_time_over_four, closest_st_names_over_four = start_times_over_four[0], closest_sts_names_over_four[0]
-        start_time_under_four, closest_st_under_four = start_times_under_four[0], closest_sts_under_four[0]
+        start_time_over, closest_st_names_over = start_times_over[0], closest_sts_names_over[0]
+        start_time_under, closest_st_under = start_times_under[0], closest_sts_under[0]
         station_no_event = ['CO10']
         no_event_file = 'sismos_txt/no_event_intervals_CO10.txt'
 
     elif station == "second":
-        start_time_over_four, closest_st_names_over_four = start_times_over_four[1], closest_sts_names_over_four[1]
-        start_time_under_four, closest_st_under_four = start_times_under_four[1], closest_sts_under_four[1]
+        start_time_over, closest_st_names_over = start_times_over[1], closest_sts_names_over[1]
+        start_time_under, closest_st_under = start_times_under[1], closest_sts_under[1]
         station_no_event = ['AC04']
         no_event_file = 'sismos_txt/no_event_intervals_AC04.txt'
 
     # ------------------------------------
-    # Events M>=4 processing
+    # Events M>=magnitude processing
     # ------------------------------------
 
     # Crear una lista con las estaciones más cercanas para cada evento
-    closest_sts_tr = [stations_dic[estacion] for estacion in closest_st_names_over_four]
+    closest_sts_tr = [stations_dic[estacion] for estacion in closest_st_names_over]
 
     # Tomamos trazas que parten en el inicio de cada evento y toman todo el resto de la señal 
-    start_traces = [sts.slice(start) for sts, start in zip(closest_sts_tr, start_time_over_four)]
+    start_traces = [sts.slice(start) for sts, start in zip(closest_sts_tr, start_time_over)]
     # Se calcula el punto donde cada traza tendría su finalización del evento
     end_events_traces = [endpoint_event(st.data)[1] for st in start_traces]
 
     post_event = end_events_traces
-    sliced_traces = [traces.slice(start - pre_event, start + post_event[i]/sample_rate) for i, (traces, start) in enumerate(zip(closest_sts_tr, start_time_over_four))]
+    sliced_traces = [traces.slice(start, start + post_event[i]/sample_rate) for i, (traces, start) in enumerate(zip(closest_sts_tr, start_time_over))]
 
     # Calculate energy and power 
     energy_events, power_events = zip(*[energy_power(st.data) for st in sliced_traces])
@@ -114,19 +120,19 @@ def main(station: str):
     # Events M<4 processing
     # ------------------------------------
 
-    #start_time_under_four, closest_sts_under_four = nearest_station(events_under_four, stations_names)
-    closest_sts_tr_under_four = [stations_dic[estacion] for estacion in closest_st_under_four]
+    #start_time_under, closest_sts_under = nearest_station(events_under, stations_names)
+    closest_sts_tr_under = [stations_dic[estacion] for estacion in closest_st_under]
 
     # Tomamos trazas que parten en el inicio de cada evento y toman todo el resto de la señal 
-    start_tr_under_four = [sts.slice(start) for sts, start in zip(closest_sts_tr_under_four, start_time_under_four)]
+    start_tr_under = [sts.slice(start) for sts, start in zip(closest_sts_tr_under, start_time_under)]
     # Se calcula el punto donde cada traza tendría su finalización del evento
-    end_events_tr_under_four = [endpoint_event(st.data)[1] for st in start_tr_under_four]
+    end_events_tr_under = [endpoint_event(st.data)[1] for st in start_tr_under]
 
-    post_event_under_four = end_events_tr_under_four
-    sliced_traces_under_four = [traces.slice(start - pre_event, start + post_event_under_four [i]/sample_rate) for i, (traces, start) in enumerate(zip(closest_sts_tr_under_four, start_time_under_four))]
+    post_event_under = end_events_tr_under
+    sliced_traces_under = [traces.slice(start , start + post_event_under [i]/sample_rate) for i, (traces, start) in enumerate(zip(closest_sts_tr_under, start_time_under))]
 
     # Calculate energy and power 
-    energy_events_under_four, power_events_under_four = zip(*[energy_power(st.data) for st in sliced_traces_under_four])
+    energy_events_under, power_events_under = zip(*[energy_power(st.data) for st in sliced_traces_under])
 
     # ------------------------------------
     # No Events (Noise)
@@ -160,8 +166,8 @@ def main(station: str):
     # Adding all of them to plot histogram
     # ------------------------------------
 
-    power_events_all = [power_events, power_events_under_four, power_events_no_event]
-    energy_events_all = [energy_events, energy_events_under_four, energy_events_no_events]
+    power_events_all = [power_events, power_events_under, power_events_no_event]
+    energy_events_all = [energy_events, energy_events_under, energy_events_no_events]
 
     # ------------------------------------
     # ROC curve anc Confussion Matrix with Energy as criteria
@@ -217,30 +223,36 @@ def main(station: str):
 
 
 
-if __name__=='__main__':
-    input = input("Choose the station. If you want the closest type 'first', if you want the second closest type 'second':")
+if __name__ == '__main__':
 
-    data, optminal_thrs, labels, events, station = main(input)
+    st = input("Choose the station. If you want the closest type 'first', if you want the second closest type 'second':")
+    magnitude = float(input("Enter the magnitude to separate the events: "))
+
+    event_type = [f'$M \geq {magnitude}$', f'$M < {magnitude}$', 'Ruido (sin eventos)']
+    classes_1 = ['No Event', 'Event']
+    classes_2 = [f'No M>={magnitude}', f'M>={magnitude}']
+
+    data, optminal_thrs, labels, events, station = main2(st, magnitude)
     station = station[0]
 
     # ------------------------------------
     # Plot of all the things
     # ------------------------------------
 
+    method = ['youden_index', 'euclidena_distance', 'concordance_probability']
+
     plot_energy_hist(events[0], station = station, frame = 3, use_log = True, event_type = event_type)
     plot_power(events[1], station = station, n_frames=10, use_log=True, event_type=event_type)
 
-    plot_roc_curve(labels[0], station, data[0])
-    plot_confusion_matrix(optminal_thrs[0], station, 'youden_index', labels[0], data[0], classes_1)
+    plot_roc_curve(labels[0], station, data[0], class_type = classes_1, title='ROC Curve for energy')
+    plot_confusion_matrix(optminal_thrs[0], station, method[2], labels[0], data[0], classes_1)
 
-    plot_roc_curve(labels[1], station, data[0])
-    plot_confusion_matrix(optminal_thrs[1], station, 'youden_index', labels[1], data[0], classes_2)
+    plot_roc_curve(labels[1], station, data[0], class_type = classes_2, title='ROC Curve for energy')
+    plot_confusion_matrix(optminal_thrs[1], station, method[2], labels[1], data[0], classes_2)
 
-    plot_roc_curve(labels[2], station, data[1])
-    plot_confusion_matrix(optminal_thrs[2], station, 'youden_index', labels[2], data[1], classes_1)
+    plot_roc_curve(labels[2], station, data[1], class_type = classes_1, title='ROC Curve for power')
+    plot_confusion_matrix(optminal_thrs[2], station, method[2], labels[2], data[1], classes_1)
 
-    plot_roc_curve(labels[3], station, data[1])
-    plot_confusion_matrix(optminal_thrs[3], station, 'youden_index', labels[3], data[1], classes_2)
+    plot_roc_curve(labels[3], station, data[1], class_type = classes_2, title='ROC Curve for power')
+    plot_confusion_matrix(optminal_thrs[3], station, method[2], labels[3], data[1], classes_2)
 
-
-    

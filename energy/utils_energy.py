@@ -12,7 +12,7 @@ from sklearn.metrics import roc_curve, auc, confusion_matrix, ConfusionMatrixDis
 from obspy import read, UTCDateTime
 from astropy.visualization import hist
 
-plt.rcParams['figure.constrained_layout.use'] = True
+
 
 def nearest_station(file_path: str, stations_names:list):
     '''
@@ -43,13 +43,13 @@ def nearest_station(file_path: str, stations_names:list):
     return start_time, closest_st_names
 
 
-def nearest_two_stations(file_path: str, stations_names:list):
+def nearest_two_stations(df: pd.DataFrame, stations_names:list):
     '''
      Creamos una lista con el tiempo de partida de cada evento para las dos estaciones más cercanas y una lista con los nombres de las dos estaciones más cercanas para cada evento
     '''
 
     # Lee los datos
-    df = pd.read_csv(file_path)
+    #df = pd.read_csv(df)
 
     results = {}
 
@@ -188,6 +188,8 @@ def energy_power(signal, window_size = 160, sample_rate = 40, hop_lenght = 160):
 
 
 def plot_power(power_events, station, n_frames=1, use_log=False, height=6, width=4, event_type=None, use_mean=False):
+    original_setting = plt.rcParams['figure.constrained_layout.use']
+    plt.rcParams['figure.constrained_layout.use'] = True
 
     plt.figure(figsize=(height, width))
 
@@ -221,9 +223,9 @@ def plot_power(power_events, station, n_frames=1, use_log=False, height=6, width
         #     alpha=0.6,  # Ajusta la transparencia
         #     label=event_type[i] if event_type else None
         # )
-            
+            bins=['knuth']
             hist(first_n_frames, 
-                 bins='knuth',
+                 bins = 10,
                  edgecolor='black', 
                  color=colors[i % len(colors)], 
                  #histtype='stepfilled',
@@ -252,6 +254,8 @@ def plot_power(power_events, station, n_frames=1, use_log=False, height=6, width
 
 
 def plot_power_each(power_events, station, n_frames=1, use_log=False, height = 6, width = 4, event_type=''):
+    original_setting = plt.rcParams['figure.constrained_layout.use']
+    plt.rcParams['figure.constrained_layout.use'] = True
     # Extraemos los primeros n elementos de cada array y calculamos su promedio
     first_n_frames = [np.mean(evento[:n_frames]) for evento in power_events]
 
@@ -276,7 +280,7 @@ def plot_power_each(power_events, station, n_frames=1, use_log=False, height = 6
         density=False)
 
     # Agregamos títulos y etiquetas
-    title = 'Potencia de los primeros {} frames {}. Estación'.format(n_frames, event_type, station)
+    title = 'Potencia de los primeros {} frames {}. Estación {}'.format(n_frames, event_type, station)
     xlabel = 'Potencia'
     if use_log:
         title = 'Log de la ' + title
@@ -292,6 +296,9 @@ def plot_power_each(power_events, station, n_frames=1, use_log=False, height = 6
 
 
 def plot_energy_hist(energy_events, station, frame=1, use_log=False, height = 6, width = 4, event_type=None):
+
+    original_setting = plt.rcParams['figure.constrained_layout.use']
+    plt.rcParams['figure.constrained_layout.use'] = True
     
     plt.figure(figsize=(height, width))
 
@@ -309,9 +316,9 @@ def plot_energy_hist(energy_events, station, frame=1, use_log=False, height = 6,
             energy_frame = np.log10(energy_frame)
 
         #plt.hist(energy_frame, bins=10, edgecolor='black', color=colors[i % len(colors)], alpha=0.5, label=event_type[i] if event_type else None)
-
+        bins = ['knuth']
         hist(energy_frame, 
-            bins='knuth',
+            bins= 10, 
             edgecolor='black', 
             color=colors[i % len(colors)], 
             #histtype='stepfilled',
@@ -320,7 +327,7 @@ def plot_energy_hist(energy_events, station, frame=1, use_log=False, height = 6,
             density=False)
                
 
-    title = 'Energía en el frame {}. Estación'.format(frame, station)
+    title = 'Energía en el frame {}. Estación {}'.format(frame, station)
     xlabel = 'Energía'
     if use_log:
         title = 'Log de la ' + title
@@ -341,6 +348,9 @@ def plot_energy_hist(energy_events, station, frame=1, use_log=False, height = 6,
 
 
 def plot_confusion_matrix(threshold, station, title, labels, log_data, classes):
+    # Disable constrained layout for the confusion matrix
+    original_setting = plt.rcParams['figure.constrained_layout.use']
+    plt.rcParams['figure.constrained_layout.use'] = False
     predicted_labels = np.array([1 if x >= threshold else 0 for x in log_data])
 
     cm = confusion_matrix(labels, predicted_labels)
