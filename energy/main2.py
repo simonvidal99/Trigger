@@ -110,7 +110,7 @@ def main2(station: str, magnitude):
     end_events_traces = [endpoint_event(st.data)[1] for st in start_traces]
 
     post_event = end_events_traces
-    sliced_traces = [traces.slice(start, start + post_event[i]/sample_rate) for i, (traces, start) in enumerate(zip(closest_sts_tr, start_time_over))]
+    sliced_traces = [traces.slice(start, start + post_event[i]*sample_rate) for i, (traces, start) in enumerate(zip(closest_sts_tr, start_time_over))]
 
     # Calculate energy and power 
     energy_events, power_events = zip(*[energy_power(st.data) for st in sliced_traces])
@@ -129,7 +129,7 @@ def main2(station: str, magnitude):
     end_events_tr_under = [endpoint_event(st.data)[1] for st in start_tr_under]
 
     post_event_under = end_events_tr_under
-    sliced_traces_under = [traces.slice(start , start + post_event_under [i]/sample_rate) for i, (traces, start) in enumerate(zip(closest_sts_tr_under, start_time_under))]
+    sliced_traces_under = [traces.slice(start , start + post_event_under [i]*sample_rate) for i, (traces, start) in enumerate(zip(closest_sts_tr_under, start_time_under))]
 
     # Calculate energy and power 
     energy_events_under, power_events_under = zip(*[energy_power(st.data) for st in sliced_traces_under])
@@ -241,18 +241,40 @@ if __name__ == '__main__':
 
     method = ['youden_index', 'euclidena_distance', 'concordance_probability']
 
-    plot_energy_hist(events[0], station = station, frame = 3, use_log = True, event_type = event_type)
-    plot_power(events[1], station = station, n_frames=10, use_log=True, event_type=event_type)
+    # Create a 5x2 grid of subplots
+    fig, axs = plt.subplots(5, 2, figsize=(10, 20))
+    plt.subplots_adjust(hspace=0.5)
 
-    plot_roc_curve(labels[0], station, data[0], class_type = classes_1, title='ROC Curve for energy')
-    plot_confusion_matrix(optminal_thrs[0], station, method[2], labels[0], data[0], classes_1)
+    # Plot on each subplot
 
-    plot_roc_curve(labels[1], station, data[0], class_type = classes_2, title='ROC Curve for energy')
-    plot_confusion_matrix(optminal_thrs[1], station, method[2], labels[1], data[0], classes_2)
+    # First row
+    plot_power(events[1], station=station, n_frames=10, use_log=True, event_type=event_type, ax=axs[0, 0])
+    #axs[0, 1].axis('off')  # Turn off the unused subplot
 
-    plot_roc_curve(labels[2], station, data[1], class_type = classes_1, title='ROC Curve for power')
-    plot_confusion_matrix(optminal_thrs[2], station, method[2], labels[2], data[1], classes_1)
+    # Second row
+    plot_roc_curve(labels[2], station, data[1], class_type=classes_1, title='ROC Curve for power', ax=axs[1, 0])
+    #axs[1, 1].axis('off')  # Turn off the unused subplot
+    plot_confusion_matrix(optminal_thrs[2], station, method[2], labels[2], data[1], classes_1, ax1=axs[2, 0], ax2=axs[2, 1])
 
-    plot_roc_curve(labels[3], station, data[1], class_type = classes_2, title='ROC Curve for power')
-    plot_confusion_matrix(optminal_thrs[3], station, method[2], labels[3], data[1], classes_2)
+    # Third row
+    plot_roc_curve(labels[3], station, data[1], class_type=classes_2, title='ROC Curve for power', ax=axs[3, 0])
+    #axs[3, 1].axis('off')  # Turn off the unused subplot
+    plot_confusion_matrix(optminal_thrs[3], station, method[2], labels[3], data[1], classes_2, ax1=axs[4, 0], ax2=axs[4, 1])
+
+    # Adjust layout for the second column
+    for i in range(5):
+        axs[i, 1].axis('off')  # Turn off the unused subplot
+        axs[i, 0].get_shared_y_axes().join(axs[i, 0], axs[i, 1])
+
+        # If a subplot in the row is empty, make the first subplot span both columns
+        if axs[i, 1].is_first_col():
+            axs[i, 0].set_position([axs[i, 0].get_position().x0, axs[i, 0].get_position().y0,
+                                axs[i, 0].get_position().width + axs[i, 1].get_position().width,
+                                axs[i, 0].get_position().height])
+
+    # Display the figure with subplots
+    plt.tight_layout()
+    plt.show()
+
+
 

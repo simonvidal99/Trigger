@@ -187,11 +187,22 @@ def energy_power(signal, window_size = 160, sample_rate = 40, hop_lenght = 160):
 
 
 
-def plot_power(power_events, station, n_frames=1, use_log=False, height=6, width=4, event_type=None, use_mean=False):
+def plot_power(power_events, station, n_frames=1, use_log=False, height=6, width=4, event_type=None, use_mean=False,ax=None):
+
     original_setting = plt.rcParams['figure.constrained_layout.use']
     plt.rcParams['figure.constrained_layout.use'] = True
 
-    plt.figure(figsize=(height, width))
+
+    #plt.figure(figsize=(height, width))
+
+    if ax is None:
+        fig, ax = plt.subplots(figsize=(height, width)
+                               )
+    else:
+        fig = ax.figure
+        fig.set_constrained_layout(True)
+
+    fig.set_constrained_layout(True)
 
     # Definimos una lista de colores
     colors = ['b', 'g', 'r', 'c', 'm', 'y', 'k']
@@ -224,7 +235,7 @@ def plot_power(power_events, station, n_frames=1, use_log=False, height=6, width
         #     label=event_type[i] if event_type else None
         # )
             bins=['knuth']
-            hist(first_n_frames, 
+            ax.hist(first_n_frames, 
                  bins = 10,
                  edgecolor='black', 
                  color=colors[i % len(colors)], 
@@ -239,21 +250,24 @@ def plot_power(power_events, station, n_frames=1, use_log=False, height=6, width
         title = 'Log de la ' + title
         xlabel = 'Log de la ' + xlabel
 
-    plt.xlim([4, 15])
-    plt.ylim([0, 50])
-    plt.title(title)
-    plt.xlabel(xlabel)
-    plt.ylabel('Frecuencia')
+    ax.set_xlim([4, 16])
+    ax.set_ylim([0, 50])
+    ax.set_title(title)
+    ax.set_xlabel(xlabel)
+    ax.set_ylabel('Cantidad')
 
     # Añadimos la leyenda si event_type no es None
     if event_type:
-        plt.legend()
+        ax.legend()
+    plt.rcParams['figure.constrained_layout.use'] = original_setting
 
-    plt.show()
+    #plt.show()
 
 
 
 def plot_power_each(power_events, station, n_frames=1, use_log=False, height = 6, width = 4, event_type=''):
+
+
     original_setting = plt.rcParams['figure.constrained_layout.use']
     plt.rcParams['figure.constrained_layout.use'] = True
     # Extraemos los primeros n elementos de cada array y calculamos su promedio
@@ -292,15 +306,66 @@ def plot_power_each(power_events, station, n_frames=1, use_log=False, height = 6
     plt.ylabel('Frecuencia')
 
     # Mostramos el gráfico
-    plt.show()
+    #plt.show()
 
 
-def plot_energy_hist(energy_events, station, frame=1, use_log=False, height = 6, width = 4, event_type=None):
+# def plot_energy_hist(energy_events, station, frame=1, use_log=False, height = 6, width = 4, event_type=None):
+
+
+#     plt.figure(figsize=(height, width))
+
+#     # Definimos una lista de colores
+#     colors = ['b', 'g', 'r', 'c', 'm', 'y', 'k']
+
+#     # Encontrar la longitud máxima del array más largo en power_events
+#     max_len = max(max(len(eventos) for eventos in events) for events in energy_events)
+
+#     for i, events in enumerate(energy_events):
+
+#         energy_frame = [eventos[frame-1] if len(eventos) > frame-1 else 1 for eventos in events]
+
+#         if use_log:
+#             energy_frame = np.log10(energy_frame)
+
+#         #plt.hist(energy_frame, bins=10, edgecolor='black', color=colors[i % len(colors)], alpha=0.5, label=event_type[i] if event_type else None)
+#         bins = ['knuth']
+#         hist(energy_frame, 
+#             bins= 10, 
+#             edgecolor='black', 
+#             color=colors[i % len(colors)], 
+#             #histtype='stepfilled',
+#             alpha=0.6, 
+#             label=event_type[i] if event_type else None,
+#             density=False)
+               
+
+#     title = 'Energía en el frame {}. Estación {}'.format(frame, station)
+#     xlabel = 'Energía'
+#     if use_log:
+#         title = 'Log de la ' + title
+#         xlabel = 'Log de la ' + xlabel
+
+#     plt.xlim([4,15])
+#     plt.ylim([0,50])
+#     plt.title(title)
+#     plt.xlabel(xlabel)
+#     plt.ylabel('Frecuencia')
+
+#     # Añadimos la leyenda si event_type no es None
+#     if event_type:
+#         plt.legend()
+
+
+#     plt.show()
+
+def plot_energy_hist(energy_events, station, frame=1, use_log=False, event_type=None, ax=None):
 
     original_setting = plt.rcParams['figure.constrained_layout.use']
     plt.rcParams['figure.constrained_layout.use'] = True
-    
-    plt.figure(figsize=(height, width))
+
+    # If no ax was provided, create a new figure and ax
+    if ax is None:
+        fig, ax = plt.subplots()
 
     # Definimos una lista de colores
     colors = ['b', 'g', 'r', 'c', 'm', 'y', 'k']
@@ -315,17 +380,15 @@ def plot_energy_hist(energy_events, station, frame=1, use_log=False, height = 6,
         if use_log:
             energy_frame = np.log10(energy_frame)
 
-        #plt.hist(energy_frame, bins=10, edgecolor='black', color=colors[i % len(colors)], alpha=0.5, label=event_type[i] if event_type else None)
+        # Use ax.hist instead of plt.hist
         bins = ['knuth']
-        hist(energy_frame, 
+        ax.hist(energy_frame, 
             bins= 10, 
             edgecolor='black', 
             color=colors[i % len(colors)], 
-            #histtype='stepfilled',
             alpha=0.6, 
             label=event_type[i] if event_type else None,
             density=False)
-               
 
     title = 'Energía en el frame {}. Estación {}'.format(frame, station)
     xlabel = 'Energía'
@@ -333,21 +396,20 @@ def plot_energy_hist(energy_events, station, frame=1, use_log=False, height = 6,
         title = 'Log de la ' + title
         xlabel = 'Log de la ' + xlabel
 
-    plt.xlim([4,15])
-    plt.ylim([0,50])
-    plt.title(title)
-    plt.xlabel(xlabel)
-    plt.ylabel('Frecuencia')
+    ax.set_xlim([4,15])
+    ax.set_ylim([0,50])
+    ax.set_title(title)
+    ax.set_xlabel(xlabel)
+    ax.set_ylabel('Frecuencia')
 
     # Añadimos la leyenda si event_type no es None
     if event_type:
-        plt.legend()
+        ax.legend()
+
+    # No need to call plt.show() here, do it after you've created all your subplots
 
 
-    plt.show()
-
-
-def plot_confusion_matrix(threshold, station, title, labels, log_data, classes):
+def plot_confusion_matrix(threshold, station, title, labels, log_data, classes, ax1=None, ax2=None):
     # Disable constrained layout for the confusion matrix
     original_setting = plt.rcParams['figure.constrained_layout.use']
     plt.rcParams['figure.constrained_layout.use'] = False
@@ -358,8 +420,55 @@ def plot_confusion_matrix(threshold, station, title, labels, log_data, classes):
     # Normalize the confusion matrix
     cm_normalized = cm.astype('float') / cm.sum(axis=1)[:, np.newaxis]
 
-    # Set up subplots
-    fig, axs = plt.subplots(1, 2, figsize=(12, 4))
+    # Plot the original confusion matrix
+    im1 = ax1.imshow(cm, cmap='coolwarm')
+    ax1.set_title(f'CM {title}. Station {station}', fontsize=10)
+    ax1.set_xlabel('Predicted', fontsize=8)
+    ax1.set_ylabel('True', fontsize=8)
+
+    for i in range(len(classes)):
+        for j in range(len(classes)):
+            text = ax1.text(j, i, str(cm[i, j]), ha='center', va='center', color='white', fontsize=6, fontweight='bold')
+
+    cbar1 = plt.colorbar(im1, ax=ax1)
+
+    ax1.set_xticks(np.arange(len(classes)))
+    ax1.set_yticks(np.arange(len(classes)))
+    ax1.set_xticklabels(classes, fontsize=8)
+    ax1.set_yticklabels(classes, fontsize=8)
+
+    # Plot the normalized confusion matrix
+    im2 = ax2.imshow(cm_normalized, cmap='coolwarm', vmin=0, vmax=1)
+    ax2.set_title(f'Normalized CM {title}', fontsize=10)
+    ax2.set_xlabel('Predicted', fontsize=8)
+    ax2.set_ylabel('True', fontsize=8)
+
+    for i in range(len(classes)):
+        for j in range(len(classes)):
+            text = ax2.text(j, i, f'{cm_normalized[i, j]*100:.2f}%', ha='center', va='center', color='white', fontsize=6, fontweight='bold')
+
+    cbar2 = plt.colorbar(im2, ax=ax2)
+
+    ax2.set_xticks(np.arange(len(classes)))
+    ax2.set_yticks(np.arange(len(classes)))
+    ax2.set_xticklabels(classes, fontsize=8)
+    ax2.set_yticklabels(classes, fontsize=8)
+
+    return ax1, ax2  # Return the original AxesSubplot objects
+
+
+def plot_confusion_matrix2(threshold, station, title, labels, log_data, classes):
+    # Disable constrained layout for the confusion matrix
+    original_setting = plt.rcParams['figure.constrained_layout.use']
+    plt.rcParams['figure.constrained_layout.use'] = False
+    predicted_labels = np.array([1 if x >= threshold else 0 for x in log_data])
+
+    cm = confusion_matrix(labels, predicted_labels)
+
+    # Normalize the confusion matrix
+    cm_normalized = cm.astype('float') / cm.sum(axis=1)[:, np.newaxis]
+
+    fig, axs = plt.subplots(1,2, figsize = (10,4))
 
     # Plot the original confusion matrix
     im1 = axs[0].imshow(cm, cmap='coolwarm')
@@ -397,8 +506,7 @@ def plot_confusion_matrix(threshold, station, title, labels, log_data, classes):
 
     plt.tight_layout()
     plt.show()
-
-
+    plt.rcParams['figure.constrained_layout.use'] = True
 
 if __name__ == '__main__':
     
