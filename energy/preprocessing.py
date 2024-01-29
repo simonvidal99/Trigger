@@ -21,12 +21,12 @@ sys.path.insert(0, 'Trigger/energy')
 # Local Imports
 # HABLAR CON CAMILO PORQUE NO SE COMO ARREGLAR ESTE PROBLEMA
 # Cuando corra el main debe estar así
-from utils_energy import *
-from utils_general import *
+# from utils_energy import *
+# from utils_general import *
 
 # Cuando corra el enery jupyter debe estar así:
-# from .utils_energy import *
-# from .utils_general import *
+from .utils_energy import *
+from .utils_general import *
 
 
 def find_files(path, extensions):

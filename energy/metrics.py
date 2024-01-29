@@ -12,12 +12,12 @@ from sklearn.metrics import roc_curve, auc, confusion_matrix, ConfusionMatrixDis
 from obspy import read, UTCDateTime
 
 # Cuando corra el main debe estar así
-from utils_energy import *
-from utils_general import *
+# from utils_energy import *
+# from utils_general import *
 
 # Cuando corra el enery jupyter debe estar así:
-# from .utils_energy import *
-# from .utils_general import *
+from .utils_energy import *
+from .utils_general import *
 
 
 
@@ -131,7 +131,7 @@ def find_best_magnitude(file_over,file_under, stations_coord ,stations_names, st
         if st_selection == 0:
             st = 'CO10'
         elif st_selection == 1:
-            st = 'ACO4'
+            st = 'AC04'
         
         # NO eventos
         no_event_df = pd.read_csv('sismos_txt/no_event_intervals_AC04.txt')
@@ -169,21 +169,24 @@ def find_best_magnitude(file_over,file_under, stations_coord ,stations_names, st
         labels_power = np.concatenate([np.ones(len(power_events_all[0])),
                                     np.zeros(len(power_events_all[1])),
                                     np.zeros(len(power_events_all[2]))])
-        fpr, tpr, _ = roc_curve(labels_power, log_data_power)
+        fpr, tpr, thr = roc_curve(labels_power, log_data_power)
 
         # Calcular la distancia de Euclides entre (0,1) y el punto en la curva ROC
-        distance = np.sqrt((0 - fpr)**2 + (1 - tpr)**2)
-        
-        distance = np.min(distance)
+        distance = np.sqrt(1e8*(0 - fpr)**2 + 1e8*(1 - tpr)**2)
+        distance_value = np.min(distance)
+        distance_index = np.argmin(distance)
+
+        distance_value = distance_value
 
         # Actualizar la magnitud si encontramos un valor con menor distancia
-        if distance < best_distance:
-            best_distance = distance
+        if distance_value < best_distance:
+            best_distance = distance_value
             best_magnitude = magnitude
             best_labels = labels_power
             best_data = log_data_power
+            opt_thr = thr[distance_index]
 
-    return best_magnitude, best_distance, best_labels, best_data
+    return best_magnitude, best_distance/1e4, best_labels, best_data, opt_thr
 
 
 

@@ -22,6 +22,7 @@ from metrics import *
 
 # Definimos paths que son necesarios. 
 xls_events = 'Eventos_24hrs.xlsx' # Catálogo original de eventos
+events_over = 'sismos_txt/times_events_over_four.txt' # catálogo sobre 4 dado por Aaron
 inventory_path = "inventory" # para quitar la respuesta del instrumento
 stations_names = ['CO10','AC04', 'AC05', 'CO05']
 # Station coordinates
@@ -70,11 +71,14 @@ def main2(station: str, magnitudes: list):
         # ------------------------------------
 
         # Read Excel file
-        df = pd.read_excel(xls_events)
+        file_over = pd.read_csv(events_over)
+        file_under = pd.read_excel(xls_events)
+        
 
         # Calculate detection times and format DataFrame
-        df_over = calculate_detection_times(df, stations_coord, v_P, magnitude_range = (magnitude,10))
-        df_under = calculate_detection_times(df, stations_coord, v_P, magnitude_range = (0,magnitude-0.1))
+        #df_over = calculate_detection_times(df, stations_coord, v_P, magnitude_range = (magnitude,10)) Esto cuando no tenga el catálogo de Aaron
+        df_over = file_over[file_over['Magnitud'] >= magnitude]
+        df_under = calculate_detection_times(file_under, stations_coord, v_P, magnitude_range = (0,magnitude-0.1))
 
 
         # ------------------------------------
@@ -217,19 +221,22 @@ def main2(station: str, magnitudes: list):
         optimal_thr_power_class2 = calculate_optimal_threshold(labels_power_class2, data_power)
 
 
-        fpr, tpr, _ = roc_curve(labels_power_class2, data_power)
+        fpr, tpr, thr = roc_curve(labels_power_class2, data_power)
 
         # Calcular la distancia de Euclides entre (0,1) y el punto en la curva ROC
         distance = np.sqrt((0 - fpr)**2 + (1 - tpr)**2)
         
         distance = np.min(distance)
+        distance_value = np.min(distance)
+        #distance_index = np.argmin(distance)
 
         # Actualizar la magnitud si encontramos un valor con menor distancia
-        if distance < best_distance:
-            best_distance = distance
+        if distance_value < best_distance:
+            best_distance = distance_value
             best_magnitude = magnitude
             #best_labels = labels_power_class2
             #best_data = data_power
+            #opt_thr = thr[distance_index]
 
             data = [data_energ, data_power]
             optminal_thrs = [optimal_thr_energy_class1, optimal_thr_energy_class2, optimal_thr_power_class1, optimal_thr_power_class2]
@@ -244,7 +251,7 @@ if __name__ == '__main__':
 
     st = input("Choose the station. If you want the closest type 'first', if you want the second closest type 'second':")
     #magnitude = float(input("Enter the magnitude to separate the events: "))
-    magnitudes_a_probar = np.linspace(3.0,5.0,21)
+    magnitudes_a_probar = np.linspace(3.0,5.5,21)
 
     data, optminal_thrs, labels, events, station, magnitude = main2(st, magnitudes_a_probar)
     event_type = [f'$M \geq {magnitude}$', f'$M < {magnitude}$', 'Ruido (sin eventos)']
@@ -256,12 +263,12 @@ if __name__ == '__main__':
     # Plot of all the things
     # ------------------------------------
 
-    method = ['youden_index', 'euclidena_distance', 'concordance_probability']
+    method = ['youden_index', 'euclidean_distance', 'concordance_probability']
 
     plot_power(events[1], station=station, n_frames=10, use_log=True, event_type=event_type)
 
     #plot_roc_curve(labels[2], station, data[1], class_type=classes_1, title='ROC Curve for power')
     #plot_confusion_matrix2(optminal_thrs[2], station, method[2], labels[2], data[1], classes_1)
 
-    plot_roc_curve(labels[3], station, data[1], class_type=classes_2, method = method[2], title='ROC Curve for power')
-    plot_confusion_matrix2(optminal_thrs[3], station, method[2], labels[3], data[1], classes_2)
+    plot_roc_curve(labels[3], station, data[1], class_type=classes_2, method = method[1], title='ROC Curve for power')
+    plot_confusion_matrix2(optminal_thrs[3], station, method[1], labels[3], data[1], classes_2)
