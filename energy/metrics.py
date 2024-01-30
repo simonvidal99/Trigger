@@ -12,16 +12,17 @@ from sklearn.metrics import roc_curve, auc, confusion_matrix, ConfusionMatrixDis
 from obspy import read, UTCDateTime
 
 # Cuando corra el main debe estar así
-# from utils_energy import *
-# from utils_general import *
+from utils_energy import *
+from utils_general import *
 
 # Cuando corra el enery jupyter debe estar así:
-from .utils_energy import *
-from .utils_general import *
+# from .utils_energy import *
+# from .utils_general import *
 
 
 
 def plot_roc_curve(labels, station, data, class_type, method ,title='ROC Curve'):
+
     # Ajusta el tamaño de la figura
     plt.figure(figsize=(10, 6))
 
@@ -55,7 +56,9 @@ def plot_roc_curve(labels, station, data, class_type, method ,title='ROC Curve')
     plt.grid(b=True, which='minor', linestyle='--', alpha=0.3)
 
     # Show the plot
+    plt.tight_layout()
     #plt.show()
+
 
 
 
@@ -77,117 +80,97 @@ def calculate_optimal_threshold(labels, data, method='youden_index'):
     return optimal_threshold
 
 
-def find_best_magnitude(file_over,file_under, stations_coord ,stations_names, stations_dic, magnitudes, st_selection = 0, v_P = 8.046, sample_rate = 40, pre_event = 0):
-    best_magnitude = None
-    best_distance = float('inf')
+def plot_confusion_matrix(threshold, station, title, labels, log_data, classes, ax1=None, ax2=None):
 
-    for magnitude in magnitudes:
+    predicted_labels = np.array([1 if x >= threshold else 0 for x in log_data])
 
-        df_under = calculate_detection_times(file_under, stations_coord, v_P, magnitude_range = (0, magnitude-0.1))
+    cm = confusion_matrix(labels, predicted_labels)
 
-        df_over = file_over[file_over['Magnitud'] >= magnitude]
-        start_times_over_, closest_sts_names_over_  = nearest_two_stations(df_over, stations_names)
-        start_times_over , closest_sts_names_over  = start_times_over_[st_selection], closest_sts_names_over_[st_selection]
+    # Normalize the confusion matrix
+    cm_normalized = cm.astype('float') / cm.sum(axis=1)[:, np.newaxis]
 
-        # Acá se elige si se quiere la traza de la estación más cercana (i = 0) o de la segunda más cercana (i = 1)
-        st_selection = st_selection
+    # Plot the original confusion matrix
+    im1 = ax1.imshow(cm, cmap='coolwarm')
+    ax1.set_title(f'CM {title}. Station {station}', fontsize=10)
+    ax1.set_xlabel('Predicted', fontsize=8)
+    ax1.set_ylabel('True', fontsize=8)
 
-        # M>magnitude
-        closest_sts_tr_over = [stations_dic[estacion] for estacion in closest_sts_names_over] 
+    for i in range(len(classes)):
+        for j in range(len(classes)):
+            text = ax1.text(j, i, str(cm[i, j]), ha='center', va='center', color='white', fontsize=6, fontweight='bold')
 
-        # Tomamos trazas que parten en el inicio de cada evento y toman todo el resto de la señal 
-        start_traces = [sts.slice(start) for sts, start in zip(closest_sts_tr_over, start_times_over)]
+    cbar1 = plt.colorbar(im1, ax=ax1)
 
-        # Se calcula el punto donde cada traza tendría su finalización del evento
-        end_events_traces = [endpoint_event(st.data)[st_selection] for st in start_traces]
+    ax1.set_xticks(np.arange(len(classes)))
+    ax1.set_yticks(np.arange(len(classes)))
+    ax1.set_xticklabels(classes, fontsize=8)
+    ax1.set_yticklabels(classes, fontsize=8)
 
-        post_event = end_events_traces
-        sliced_traces = [traces.slice(start - pre_event, start + post_event[i]*sample_rate) for i, (traces, start) in enumerate(zip(closest_sts_tr_over , start_times_over))]
+    # Plot the normalized confusion matrix
+    im2 = ax2.imshow(cm_normalized, cmap='coolwarm', vmin=0, vmax=1)
+    ax2.set_title(f'Normalized CM {title}', fontsize=10)
+    ax2.set_xlabel('Predicted', fontsize=8)
+    ax2.set_ylabel('True', fontsize=8)
 
+    for i in range(len(classes)):
+        for j in range(len(classes)):
+            text = ax2.text(j, i, f'{cm_normalized[i, j]*100:.2f}%', ha='center', va='center', color='white', fontsize=6, fontweight='bold')
 
-        _, power_events_over = zip(*[energy_power(st.data) for st in sliced_traces])
+    cbar2 = plt.colorbar(im2, ax=ax2)
 
-
-        # M < magnitude
-        start_times_under, closest_sts_under = nearest_two_stations(df_under, stations_names)
-
-        start_times_under , closest_sts_names_under = start_times_under[st_selection], closest_sts_under[st_selection] 
-
-        closest_sts_tr_under= [stations_dic[estacion] for estacion in closest_sts_names_under] 
-
-        # Tomamos trazas que parten en el inicio de cada evento y toman todo el resto de la señal 
-        start_tr_under_four = [sts.slice(start) for sts, start in zip(closest_sts_tr_under, start_times_under)]
-
-        # Se calcula el punto donde cada traza tendría su finalización del evento
-        end_events_tr_under_four = [endpoint_event(st.data)[st_selection] for st in start_tr_under_four]
-
-        pre_event_under_four = 0
-        post_event_under_four = end_events_tr_under_four
-        sample_rate = 40
-        sliced_traces_under_four = [traces.slice(start - pre_event_under_four, start + post_event_under_four [i]*sample_rate) for i, (traces, start) in enumerate(zip(closest_sts_tr_under, start_times_under))]
-
-        _, power_events_under = zip(*[energy_power(st.data) for st in sliced_traces_under_four])
-
-        if st_selection == 0:
-            st = 'CO10'
-        elif st_selection == 1:
-            st = 'AC04'
-        
-        # NO eventos
-        no_event_df = pd.read_csv('sismos_txt/no_event_intervals_AC04.txt')
-
-        intervals = 1273
-        random_intervals = no_event_df.sample(n=intervals, random_state=1)
-
-        # Convertir las columnas 'Start' y 'End' a datetime
-        random_intervals['Start'] = pd.to_datetime(random_intervals['Start'])
-        random_intervals['End'] = pd.to_datetime(random_intervals['End'])
-
-        # Crear las listas start_times_no_events y end_time_no_events
-        start_times_no_events = random_intervals['Start'].dt.strftime('%Y-%m-%dT%H:%M:%S.000000Z').tolist()
-        end_time_no_events = random_intervals['End'].dt.strftime('%Y-%m-%dT%H:%M:%S.000000Z').tolist()
-
-        start_times_no_events = [UTCDateTime(time) for time in start_times_no_events]
-        end_time_no_events = [UTCDateTime(time) for time in end_time_no_events]
-        start_times_no_events.sort()
-        end_time_no_events.sort()
-
-        station_no_event = [st]*intervals
-        closest_sts_tr_no_event = [stations_dic[estacion] for estacion in station_no_event]
-
-        sliced_traces_no_event = [traces.slice(start, start + 60) for traces, start in zip(closest_sts_tr_no_event, start_times_no_events)]
-
-        _, power_events_no_event = zip(*[energy_power(st.data) for st in sliced_traces_no_event])
-
-        power_events_all = [power_events_over, power_events_under, power_events_no_event]
-
-        power_last_frame = [arr[-1] for tup in power_events_all for arr in tup]
-        data_power = np.array(power_last_frame)
-        # Como estamos trabajando con el log de 10 antes, lo hacemos tambien acá, hace todo más bonito jjjjjeee
-        log_data_power = np.log10(data_power)
-
-        labels_power = np.concatenate([np.ones(len(power_events_all[0])),
-                                    np.zeros(len(power_events_all[1])),
-                                    np.zeros(len(power_events_all[2]))])
-        fpr, tpr, thr = roc_curve(labels_power, log_data_power)
-
-        # Calcular la distancia de Euclides entre (0,1) y el punto en la curva ROC
-        distance = np.sqrt(1e8*(0 - fpr)**2 + 1e8*(1 - tpr)**2)
-        distance_value = np.min(distance)
-        distance_index = np.argmin(distance)
-
-        distance_value = distance_value
-
-        # Actualizar la magnitud si encontramos un valor con menor distancia
-        if distance_value < best_distance:
-            best_distance = distance_value
-            best_magnitude = magnitude
-            best_labels = labels_power
-            best_data = log_data_power
-            opt_thr = thr[distance_index]
-
-    return best_magnitude, best_distance/1e4, best_labels, best_data, opt_thr
+    ax2.set_xticks(np.arange(len(classes)))
+    ax2.set_yticks(np.arange(len(classes)))
+    ax2.set_xticklabels(classes, fontsize=8)
+    ax2.set_yticklabels(classes, fontsize=8)
 
 
+    return ax1, ax2  # Return the original AxesSubplot objects
 
+
+def plot_confusion_matrix2(threshold, station, title, labels, log_data, classes):
+
+    predicted_labels = np.array([1 if x >= threshold else 0 for x in log_data])
+
+    cm = confusion_matrix(labels, predicted_labels)
+
+    # Normalize the confusion matrix
+    cm_normalized = cm.astype('float') / cm.sum(axis=1)[:, np.newaxis]
+
+    fig, axs = plt.subplots(1,2, figsize = (10,4))
+
+    # Plot the original confusion matrix
+    im1 = axs[0].imshow(cm, cmap='coolwarm')
+    axs[0].set_title(f'CM {title}. Station {station}')
+    axs[0].set_xlabel('Predicted')
+    axs[0].set_ylabel('True')
+
+    for i in range(len(classes)):
+        for j in range(len(classes)):
+            text = axs[0].text(j, i, str(cm[i, j]), ha='center', va='center', color='white', fontsize=14, fontweight='bold')
+
+    cbar1 = plt.colorbar(im1, ax=axs[0])
+
+    axs[0].set_xticks(np.arange(len(classes)))
+    axs[0].set_yticks(np.arange(len(classes)))
+    axs[0].set_xticklabels(classes)
+    axs[0].set_yticklabels(classes)
+
+    # Plot the normalized confusion matrix
+    im2 = axs[1].imshow(cm_normalized, cmap='coolwarm', vmin=0, vmax=1)
+    axs[1].set_title(f'Normalized CM {title}')
+    axs[1].set_xlabel('Predicted')
+    axs[1].set_ylabel('True')
+
+    for i in range(len(classes)):
+        for j in range(len(classes)):
+            text = axs[1].text(j, i, f'{cm_normalized[i, j]*100:.2f}%', ha='center', va='center', color='white', fontsize=14, fontweight='bold')
+
+    cbar2 = plt.colorbar(im2, ax=axs[1])
+
+    axs[1].set_xticks(np.arange(len(classes)))
+    axs[1].set_yticks(np.arange(len(classes)))
+    axs[1].set_xticklabels(classes)
+    axs[1].set_yticklabels(classes)
+
+    plt.show()
 

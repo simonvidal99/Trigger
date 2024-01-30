@@ -20,7 +20,7 @@ from icecream import ic
 
 
 
-def calculate_detection_times(df, stations_coord, v_P, magnitude_range=(3.5, 10.0)):
+def calculate_detection_times(df: pd.DataFrame, stations_coord, v_P, magnitude_range=(3.5, 10.0)):
     """
     Calcula los tiempos de detección de los eventos sísmicos reales en las distintas estaciones y guarda los resultados en un DataFrame.
     Esto sería tener un DataFrame con el tiempo real de los eventos y el tiempo cuando deberían ser detectados por cada estación.
@@ -39,10 +39,10 @@ def calculate_detection_times(df, stations_coord, v_P, magnitude_range=(3.5, 10.
             lambda row: row['Fecha UTC'] + timedelta(seconds=geodesic((row['Latitud'], row['Longitud']), coords).kilometers / v_P),
             axis=1
         )
-        df[f'Distancia a estación {station}'] = df.apply(
-            lambda row: round(geodesic((row['Latitud'], row['Longitud']), coords).kilometers, 2),
-            axis=1
-        )
+        # df[f'Distancia a estación {station}'] = df.apply(
+        #     lambda row: round(geodesic((row['Latitud'], row['Longitud']), coords).kilometers, 2),
+        #     axis=1
+        # )
 
     formatted_df = df.copy()
     
@@ -52,7 +52,7 @@ def calculate_detection_times(df, stations_coord, v_P, magnitude_range=(3.5, 10.
             formatted_df[col] = formatted_df[col].apply(lambda time: time.strftime('%Y-%m-%dT%H:%M:%S') if pd.notnull(time) else '')
 
     # Selecciona solo las columnas de tiempo, magnitud y distancia
-    columns = ['Fecha UTC', 'Magnitud'] + [f'Inicio_{station}' for station in stations_coord.keys()] + [f'Distancia a estación {station}' for station in stations_coord.keys()]
+    columns = ['Fecha UTC', 'Magnitud'] + [f'Inicio_{station}' for station in stations_coord.keys()] #+ [f'Distancia a estación {station}' for station in stations_coord.keys()]
     formatted_df = formatted_df[columns]
     
     # Filtra eventos con magnitud dentro del rango especificado

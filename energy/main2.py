@@ -22,8 +22,13 @@ from metrics import *
 
 # Definimos paths que son necesarios. 
 xls_events = 'Eventos_24hrs.xlsx' # Catálogo original de eventos
+events_over = 'sismos_txt/times_events_over_four.txt' # catálogo sobre 4 dado por Aaron
 inventory_path = "inventory" # para quitar la respuesta del instrumento
-stations_names = ['CO10','AC04', 'AC05', 'CO05']
+stations_names = ['CO10', 'AC04', 'AC05', 'CO05']
+
+file_over = pd.read_csv(events_over)
+file_under = pd.read_excel(xls_events)
+
 # Station coordinates
 stations_coord = {
     'CO10': (-29.24, -71.46),
@@ -61,18 +66,39 @@ st_CO10_BHZ = processed_stations[key_names_bhz[3]].select(channel='BHZ')
 stations_dic = {name: globals()[f'st_{name}_BHZ'][0] for name in stations_names}
 
 
-def main2(station: str, magnitude):
+def main(station: str, magnitudes: list, method: str):
+
+    if station == "first":
+        station_selected = 'CO10'
+        st_selected = 0
+
+    elif station == "second":
+        station_selected = 'AC04'
+        st_selected = 1
+        
+    no_event_df = pd.read_csv(f'sismos_txt/no_event_intervals_{station_selected}.txt')
+
+    best_magnitude, best_labels, best_data, opt_thr, power_events = find_best_magnitude(file_over = file_over, file_under = file_under, no_event_df = no_event_df,
+                                                                                        stations_coord = stations_coord, stations_names = stations_names, stations_dic_tr = stations_dic, 
+                                                                                        magnitudes = magnitudes, method = method, st_selection = st_selected)
+    return best_magnitude, best_labels, best_data, opt_thr, power_events, station_selected
+
+
+def main2(station: str, magnitude: int):
 
     # ------------------------------------
     # Separing the data using the magnitude given in the input
     # ------------------------------------
 
     # Read Excel file
-    df = pd.read_excel(xls_events)
+    file_over = pd.read_csv(events_over)
+    file_under = pd.read_excel(xls_events)
+    
 
     # Calculate detection times and format DataFrame
-    df_over = calculate_detection_times(df, stations_coord, v_P, magnitude_range = (magnitude,10))
-    df_under = calculate_detection_times(df, stations_coord, v_P, magnitude_range = (0,magnitude-0.1))
+    #df_over = calculate_detection_times(df, stations_coord, v_P, magnitude_range = (magnitude,10)) Esto cuando no tenga el catálogo de Aaron
+    df_over = file_over[file_over['Magnitud'] >= magnitude]
+    df_under = calculate_detection_times(file_under, stations_coord, v_P, magnitude_range = (0,magnitude-0.1))
 
 
     # ------------------------------------
@@ -92,7 +118,7 @@ def main2(station: str, magnitude):
         no_event_file = 'sismos_txt/no_event_intervals_CO10.txt'
 
     elif station == "second":
-        start_time_over, closest_st_names_over = start_times_over[1], closest_sts_names_over[1]
+        start_time_over, closest_st_eventsnames_over = start_times_over[1], closest_sts_names_over[1]
         start_time_under, closest_st_under = start_times_under[1], closest_sts_under[1]
         station_no_event = ['AC04']
         no_event_file = 'sismos_txt/no_event_intervals_AC04.txt'
@@ -185,8 +211,8 @@ def main2(station: str, magnitude):
 
 
     labels_energy_class2  = np.concatenate([np.ones(len(energy_events_flattened[0])),
-                         np.zeros(len(energy_events_flattened[1])),
-                         np.zeros(len(energy_events_flattened[2]))])
+                        np.zeros(len(energy_events_flattened[1])),
+                        np.zeros(len(energy_events_flattened[2]))])
     
     optimal_thr_energy_class2 = calculate_optimal_threshold(labels_energy_class2, data_energ)
 
@@ -226,55 +252,27 @@ def main2(station: str, magnitude):
 if __name__ == '__main__':
 
     st = input("Choose the station. If you want the closest type 'first', if you want the second closest type 'second':")
-    magnitude = float(input("Enter the magnitude to separate the events: "))
+    
+    magnitudes_a_probar = np.arange(3.0, 5.6, 0.1).round(1)
+    method = ['youden_index', 'euclidean_distance', 'concordance_probability']
 
+    magnitude, labels, data, optminal_thrs, events, station = main(st, magnitudes_a_probar, method[2])
     event_type = [f'$M \geq {magnitude}$', f'$M < {magnitude}$', 'Ruido (sin eventos)']
     classes_1 = ['No Event', 'Event']
     classes_2 = [f'No M>={magnitude}', f'M>={magnitude}']
+    
 
-    data, optminal_thrs, labels, events, station = main2(st, magnitude)
-    station = station[0]
-
+    #magnitude = float(input("Enter the magnitude to separate the events: "))
+    #data, optminal_thrs, labels, events, station_no_event = main(st, magnitude)
+    #station = station[0]
     # ------------------------------------
     # Plot of all the things
     # ------------------------------------
 
-    method = ['youden_index', 'euclidena_distance', 'concordance_probability']
+    plot_power(events, station=station, n_frames=10, use_log=True, event_type=event_type)
 
-    # Create a 5x2 grid of subplots
-    fig, axs = plt.subplots(5, 2, figsize=(10, 20))
-    plt.subplots_adjust(hspace=0.5)
+    #plot_roc_curve(labels[2], station, data[1], class_type=classes_1, title='ROC Curve for power')
+    #plot_confusion_matrix2(optminal_thrs[2], station, method[2], labels[2], data[1], classes_1)
 
-    # Plot on each subplot
-
-    # First row
-    plot_power(events[1], station=station, n_frames=10, use_log=True, event_type=event_type, ax=axs[0, 0])
-    #axs[0, 1].axis('off')  # Turn off the unused subplot
-
-    # Second row
-    plot_roc_curve(labels[2], station, data[1], class_type=classes_1, title='ROC Curve for power', ax=axs[1, 0])
-    #axs[1, 1].axis('off')  # Turn off the unused subplot
-    plot_confusion_matrix(optminal_thrs[2], station, method[2], labels[2], data[1], classes_1, ax1=axs[2, 0], ax2=axs[2, 1])
-
-    # Third row
-    plot_roc_curve(labels[3], station, data[1], class_type=classes_2, title='ROC Curve for power', ax=axs[3, 0])
-    #axs[3, 1].axis('off')  # Turn off the unused subplot
-    plot_confusion_matrix(optminal_thrs[3], station, method[2], labels[3], data[1], classes_2, ax1=axs[4, 0], ax2=axs[4, 1])
-
-    # Adjust layout for the second column
-    for i in range(5):
-        axs[i, 1].axis('off')  # Turn off the unused subplot
-        axs[i, 0].get_shared_y_axes().join(axs[i, 0], axs[i, 1])
-
-        # If a subplot in the row is empty, make the first subplot span both columns
-        if axs[i, 1].is_first_col():
-            axs[i, 0].set_position([axs[i, 0].get_position().x0, axs[i, 0].get_position().y0,
-                                axs[i, 0].get_position().width + axs[i, 1].get_position().width,
-                                axs[i, 0].get_position().height])
-
-    # Display the figure with subplots
-    plt.tight_layout()
-    plt.show()
-
-
-
+    plot_roc_curve(labels, station, data, class_type=classes_2, method = method[2], title='ROC Curve for power')
+    plot_confusion_matrix2(optminal_thrs, station, method[2], labels, data, classes_2)

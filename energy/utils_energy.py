@@ -13,6 +13,13 @@ from obspy import read, UTCDateTime
 from astropy.visualization import hist
 
 
+# Cuando corra el main debe estar así
+from utils_general import *
+from metrics import *
+
+# Cuando corra el enery jupyter debe estar así:
+# from .utils_general import *
+# from .metrics import *
 
 def nearest_station(file_path: str, stations_names:list):
     '''
@@ -45,7 +52,8 @@ def nearest_station(file_path: str, stations_names:list):
 
 def nearest_two_stations(df: pd.DataFrame, stations_names:list):
     '''
-     Creamos una lista con el tiempo de partida de cada evento para las dos estaciones más cercanas y una lista con los nombres de las dos estaciones más cercanas para cada evento
+     Creamos una lista con el tiempo de partida de cada evento para las dos estaciones más cercanas 
+     y una lista con los nombres de las dos estaciones más cercanas para cada evento
     '''
 
     # Lee los datos
@@ -259,7 +267,7 @@ def plot_power(power_events, station, n_frames=1, use_log=False, height=6, width
     # Añadimos la leyenda si event_type no es None
     if event_type:
         ax.legend()
-    plt.rcParams['figure.constrained_layout.use'] = original_setting
+    plt.tight_layout()
 
     #plt.show()
 
@@ -267,9 +275,6 @@ def plot_power(power_events, station, n_frames=1, use_log=False, height=6, width
 
 def plot_power_each(power_events, station, n_frames=1, use_log=False, height = 6, width = 4, event_type=''):
 
-
-    original_setting = plt.rcParams['figure.constrained_layout.use']
-    plt.rcParams['figure.constrained_layout.use'] = True
     # Extraemos los primeros n elementos de cada array y calculamos su promedio
     first_n_frames = [np.mean(evento[:n_frames]) for evento in power_events]
 
@@ -305,8 +310,10 @@ def plot_power_each(power_events, station, n_frames=1, use_log=False, height = 6
     plt.xlabel(xlabel)
     plt.ylabel('Frecuencia')
 
+    
+
     # Mostramos el gráfico
-    #plt.show()
+    plt.show()
 
 
 # def plot_energy_hist(energy_events, station, frame=1, use_log=False, height = 6, width = 4, event_type=None):
@@ -406,108 +413,8 @@ def plot_energy_hist(energy_events, station, frame=1, use_log=False, event_type=
     if event_type:
         ax.legend()
 
-    # No need to call plt.show() here, do it after you've created all your subplots
-
-
-def plot_confusion_matrix(threshold, station, title, labels, log_data, classes, ax1=None, ax2=None):
-    # Disable constrained layout for the confusion matrix
-    original_setting = plt.rcParams['figure.constrained_layout.use']
-    plt.rcParams['figure.constrained_layout.use'] = False
-    predicted_labels = np.array([1 if x >= threshold else 0 for x in log_data])
-
-    cm = confusion_matrix(labels, predicted_labels)
-
-    # Normalize the confusion matrix
-    cm_normalized = cm.astype('float') / cm.sum(axis=1)[:, np.newaxis]
-
-    # Plot the original confusion matrix
-    im1 = ax1.imshow(cm, cmap='coolwarm')
-    ax1.set_title(f'CM {title}. Station {station}', fontsize=10)
-    ax1.set_xlabel('Predicted', fontsize=8)
-    ax1.set_ylabel('True', fontsize=8)
-
-    for i in range(len(classes)):
-        for j in range(len(classes)):
-            text = ax1.text(j, i, str(cm[i, j]), ha='center', va='center', color='white', fontsize=6, fontweight='bold')
-
-    cbar1 = plt.colorbar(im1, ax=ax1)
-
-    ax1.set_xticks(np.arange(len(classes)))
-    ax1.set_yticks(np.arange(len(classes)))
-    ax1.set_xticklabels(classes, fontsize=8)
-    ax1.set_yticklabels(classes, fontsize=8)
-
-    # Plot the normalized confusion matrix
-    im2 = ax2.imshow(cm_normalized, cmap='coolwarm', vmin=0, vmax=1)
-    ax2.set_title(f'Normalized CM {title}', fontsize=10)
-    ax2.set_xlabel('Predicted', fontsize=8)
-    ax2.set_ylabel('True', fontsize=8)
-
-    for i in range(len(classes)):
-        for j in range(len(classes)):
-            text = ax2.text(j, i, f'{cm_normalized[i, j]*100:.2f}%', ha='center', va='center', color='white', fontsize=6, fontweight='bold')
-
-    cbar2 = plt.colorbar(im2, ax=ax2)
-
-    ax2.set_xticks(np.arange(len(classes)))
-    ax2.set_yticks(np.arange(len(classes)))
-    ax2.set_xticklabels(classes, fontsize=8)
-    ax2.set_yticklabels(classes, fontsize=8)
-
-    return ax1, ax2  # Return the original AxesSubplot objects
-
-
-def plot_confusion_matrix2(threshold, station, title, labels, log_data, classes):
-    # Disable constrained layout for the confusion matrix
-    original_setting = plt.rcParams['figure.constrained_layout.use']
-    plt.rcParams['figure.constrained_layout.use'] = False
-    predicted_labels = np.array([1 if x >= threshold else 0 for x in log_data])
-
-    cm = confusion_matrix(labels, predicted_labels)
-
-    # Normalize the confusion matrix
-    cm_normalized = cm.astype('float') / cm.sum(axis=1)[:, np.newaxis]
-
-    fig, axs = plt.subplots(1,2, figsize = (10,4))
-
-    # Plot the original confusion matrix
-    im1 = axs[0].imshow(cm, cmap='coolwarm')
-    axs[0].set_title(f'CM {title}. Station {station}')
-    axs[0].set_xlabel('Predicted')
-    axs[0].set_ylabel('True')
-
-    for i in range(len(classes)):
-        for j in range(len(classes)):
-            text = axs[0].text(j, i, str(cm[i, j]), ha='center', va='center', color='white', fontsize=14, fontweight='bold')
-
-    cbar1 = plt.colorbar(im1, ax=axs[0])
-
-    axs[0].set_xticks(np.arange(len(classes)))
-    axs[0].set_yticks(np.arange(len(classes)))
-    axs[0].set_xticklabels(classes)
-    axs[0].set_yticklabels(classes)
-
-    # Plot the normalized confusion matrix
-    im2 = axs[1].imshow(cm_normalized, cmap='coolwarm', vmin=0, vmax=1)
-    axs[1].set_title(f'Normalized CM {title}')
-    axs[1].set_xlabel('Predicted')
-    axs[1].set_ylabel('True')
-
-    for i in range(len(classes)):
-        for j in range(len(classes)):
-            text = axs[1].text(j, i, f'{cm_normalized[i, j]*100:.2f}%', ha='center', va='center', color='white', fontsize=14, fontweight='bold')
-
-    cbar2 = plt.colorbar(im2, ax=axs[1])
-
-    axs[1].set_xticks(np.arange(len(classes)))
-    axs[1].set_yticks(np.arange(len(classes)))
-    axs[1].set_xticklabels(classes)
-    axs[1].set_yticklabels(classes)
-
-    plt.tight_layout()
-    plt.show()
-    plt.rcParams['figure.constrained_layout.use'] = True
-
+    plt.rcParams['figure.constrained_layout.use'] = original_setting
+        
 if __name__ == '__main__':
     
     print('que pasa jiles culiaooos')
