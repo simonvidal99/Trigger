@@ -12,12 +12,12 @@ from sklearn.metrics import roc_curve, auc, confusion_matrix, ConfusionMatrixDis
 from obspy import read, UTCDateTime
 
 # Cuando corra el main debe estar así
-from utils_energy import *
-from utils_general import *
+# from utils_energy import *
+# from utils_general import *
 
 # Cuando corra el enery jupyter debe estar así:
-# from .utils_energy import *
-# from .utils_general import *
+from .utils_energy import *
+from .utils_general import *
 
 
 

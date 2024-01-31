@@ -11,15 +11,16 @@ import matplotlib.cm as cm
 from sklearn.metrics import roc_curve, auc, confusion_matrix, ConfusionMatrixDisplay
 from obspy import read, UTCDateTime
 from astropy.visualization import hist
+from scipy.stats import norm, kstest
 
 
 # Cuando corra el main debe estar así
-from utils_general import *
-from metrics import *
+# from utils_general import *
+# from metrics import *
 
 # Cuando corra el enery jupyter debe estar así:
-# from .utils_general import *
-# from .metrics import *
+from .utils_general import *
+from .metrics import *
 
 def nearest_station(file_path: str, stations_names:list):
     '''
@@ -65,7 +66,7 @@ def nearest_two_stations(df: pd.DataFrame, stations_names:list):
     for i, fila in df.iterrows():
         
         # Obtiene las horas de detección en las estaciones. Esto se debe cambiar según las estaciones que tenga para analizar
-        horas_deteccion = [fila['Inicio_CO10'], fila['Inicio_AC04'], fila['Inicio_AC05'], fila['Inicio_CO05']]
+        horas_deteccion = [fila[f'Inicio_{station}'] for station in stations_names]
         
         # Encuentra los índices de las dos estaciones más cercanas
         indices_estaciones_cercanas = sorted(range(len(horas_deteccion)), key=lambda k: horas_deteccion[k])[:2]
@@ -272,6 +273,8 @@ def plot_power(power_events, station, n_frames=1, use_log=False, height=6, width
     #plt.show()
 
 
+from scipy.stats import norm, kstest
+import matplotlib.patches as patches
 
 def plot_power_each(power_events, station, n_frames=1, use_log=False, height = 6, width = 4, event_type=''):
 
@@ -283,20 +286,39 @@ def plot_power_each(power_events, station, n_frames=1, use_log=False, height = 6
         first_n_frames = np.log10(first_n_frames)
 
     # Creamos una figura con un tamaño específico
-        
     plt.figure(figsize=(height, width))
 
     # Creamos el histograma
-    #plt.hist(first_n_frames, bins=10, edgecolor='black')
-
     hist(first_n_frames, 
         bins='knuth',
         edgecolor='black', 
-        #color=colors[i % len(colors)], 
-        #histtype='stepfilled',
         alpha=0.6, 
-        #label=event_type[i] if event_type else None,
-        density=False)
+        density=False)  # Cambiamos a False para que el histograma no esté normalizado
+
+    # Calculamos el promedio y la desviación estándar
+    mu, std = norm.fit(first_n_frames)
+
+    # Dibujamos la curva de ajuste normal
+    xmin, xmax = plt.xlim()
+    x = np.linspace(xmin, xmax, 100)
+    p = norm.pdf(x, mu, std)
+    plt.plot(x, p * len(first_n_frames) * np.diff(hist(first_n_frames, bins='knuth', density=False)[1])[0], 'k', linewidth=2, label='Curva normal')
+
+    # Realizamos la prueba de Kolmogorov-Smirnov
+    d, p_value = kstest(first_n_frames, 'norm', args=(mu, std))
+
+    # Agregamos el promedio, la desviación estándar y el valor p como texto en el gráfico
+    textstr = '\n'.join((
+        r'$\mathrm{Promedio}=%.2f$' % (mu, ),
+        r'$\mathrm{Desviación\;estándar}=%.2f$' % (std, ),
+        r'$\mathrm{Valor\;p}=%.3f$' % (p_value, )))
+
+    # Estas son las propiedades del cuadro de texto
+    props = dict(boxstyle='round', facecolor='wheat', alpha=0.3)
+
+    # Colocamos un cuadro de texto en la parte superior derecha
+    plt.gca().text(0.95, 0.95, textstr, transform=plt.gca().transAxes, fontsize=8,
+        verticalalignment='top', horizontalalignment='right', bbox=props)
 
     # Agregamos títulos y etiquetas
     title = 'Potencia de los primeros {} frames {}. Estación {}'.format(n_frames, event_type, station)
@@ -305,15 +327,19 @@ def plot_power_each(power_events, station, n_frames=1, use_log=False, height = 6
         title = 'Log de la ' + title
         xlabel = 'Log de la ' + xlabel
 
-    #plt.xlim([4,15])
+    plt.xlim([3,14])
     plt.title(title)
     plt.xlabel(xlabel)
     plt.ylabel('Frecuencia')
 
-    
-
     # Mostramos el gráfico
     plt.show()
+
+
+
+
+
+
 
 
 # def plot_energy_hist(energy_events, station, frame=1, use_log=False, height = 6, width = 4, event_type=None):

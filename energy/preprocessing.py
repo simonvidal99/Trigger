@@ -1,5 +1,6 @@
 # Standard Library Imports
 import datetime
+import glob
 
 # Third-Party Library Imports
 import numpy as np
@@ -21,14 +22,14 @@ sys.path.insert(0, 'Trigger/energy')
 # Local Imports
 # HABLAR CON CAMILO PORQUE NO SE COMO ARREGLAR ESTE PROBLEMA
 # Cuando corra el main debe estar así
-from utils_energy import *
-from utils_general import *
-from metrics import *
+# from utils_energy import *
+# from utils_general import *
+# from metrics import *
 
 # Cuando corra el enery jupyter debe estar así:
-# from .utils_energy import *
-# from .utils_general import *
-# from .metrics import *
+from .utils_energy import *
+from .utils_general import *
+from .metrics import *
 
 
 def find_files(path, extensions):
@@ -79,7 +80,11 @@ def process_station(files_bhz_ch, station_name, inventory_path):
     st_raw += read(st_files[1])
     st_raw += read(st_files[2])
 
-    remove_file = os.path.join(inventory_path, f"C1_{station_name.split('/')[-1]}.xml")
+    #remove_file = os.path.join(inventory_path, f".{station_name.split('/')[-1]}.xml")
+    file_list = glob.glob(os.path.join(inventory_path, f"*{station_name.split('/')[-1]}.xml"))
+    #file_list = glob.glob(os.path.join(inventory_path, f"*{station_name}.xml"))
+    if file_list:
+        remove_file = file_list[0]
 
     st_resp = st_raw.copy()
     st_removed = remove_response(st_resp.select(channel='BHZ')[0], remove_file , 'obspy')
@@ -91,6 +96,48 @@ def process_station(files_bhz_ch, station_name, inventory_path):
     st.filter('bandpass', freqmin=4.0, freqmax=10.0)
 
     return st
+
+def no_event_intervals(df_all_events: pd, station_code: str, folder: str):
+    estacion = f'Inicio_{station_code}'
+
+    #df_all_events = pd.read_excel(all_events)
+    # Conservar solo la columna con la hora de inicio de la estacion
+    df_all_events = df_all_events[[estacion]]
+    df_all_events[estacion] = pd.to_datetime(df_all_events[estacion])
+
+    no_event_intervals = []
+    start_time_no_events = df_all_events[estacion].min().replace(hour=0, minute=0, second=0)
+    end_time_no_events = start_time_no_events + timedelta(days=1)
+
+    while start_time_no_events < end_time_no_events:
+        # Definir un intervalo de 1 minuto. Esto es modificable.
+        interval_end = start_time_no_events + timedelta(minutes=1)
+
+        #Ver si hay eventos en el intervalo
+        events_in_interval = ((df_all_events[estacion] >= start_time_no_events) &
+                              (df_all_events[estacion] <= interval_end)).sum()
+
+        # Si no hay eventos en el intervalo, añadirlo a no_event_intervals
+        if events_in_interval == 0:
+            no_event_intervals.append((start_time_no_events, interval_end))
+
+        # Si hay un evento, mover start_time_no_events dos minutos después del último evento en el intervalo para evitar traslape
+        if events_in_interval > 0:
+            last_event_in_interval = df_all_events[estacion][(df_all_events[estacion] >= start_time_no_events) &
+                                                              (df_all_events[estacion] <= interval_end)].max()
+            start_time_no_events = last_event_in_interval + timedelta(minutes=2)
+        else:
+            start_time_no_events = interval_end
+
+    no_event_df = pd.DataFrame(no_event_intervals, columns=['Start', 'End'])
+
+    event_times = df_all_events[estacion].dt.floor('T')
+    event_times_next_min = (df_all_events[estacion] + pd.Timedelta(minutes=1)).dt.floor('T')
+    all_event_times = pd.concat([event_times, event_times_next_min])
+
+    no_event_df = no_event_df[~no_event_df['Start'].dt.floor('T').isin(all_event_times)]
+
+    no_event_df.to_csv(f'{folder}/no_event_intervals_{station_code}.txt', index=False)
 
 
 def data_power(file_over: pd.DataFrame, file_under: pd.DataFrame, no_event_df: pd.DataFrame, stations_coord: dict, stations_names: list, stations_dic: dict, 
@@ -258,133 +305,13 @@ def find_best_magnitude(file_over: pd.DataFrame, file_under: pd.DataFrame, no_ev
 
 
 def test_magnitude(file_over: pd.DataFrame, file_under: pd.DataFrame, no_event_df: pd.DataFrame, stations_coord: dict, stations_names: list, stations_dic_tr: dict, 
-            magnitude: float, method: str, station: str, v_P: float = 8.046, sample_rate: int = 40, intervals = 1273):
+                    magnitude: float, method: str, station: int, v_P: float = 8.046, sample_rate: int = 40, intervals = 1273):
 
-    # ------------------------------------
-    # Separing the data using the magnitude given in the input
-    # ------------------------------------
-    
+    log_data_power, power_events = data_power(file_over = file_over, file_under = file_under, no_event_df = no_event_df, stations_coord = stations_coord , stations_names = stations_names, 
+                                                      stations_dic = stations_dic_tr, magnitude = magnitude, st_selection = station, v_P = 8.046, sample_rate = 40, pre_event = 0)
 
-    # Calculate detection times and format DataFrame
-    #df_over = calculate_detection_times(df, stations_coord, v_P, magnitude_range = (magnitude,10)) Esto cuando no tenga el catálogo de Aaron
-    df_over = file_over[file_over['Magnitud'] >= magnitude]
-    df_under = calculate_detection_times(file_under, stations_coord, v_P, magnitude_range = (0,magnitude-0.1))
+    labels_power = label_power(power_events)
 
+    opt_thr = calculate_optimal_threshold(labels_power, log_data_power, method = method)
 
-    # ------------------------------------
-    # Events M>=4 and M<4 station selection
-    # ------------------------------------
-
-    # Getting beggining and end of the events for the 2 closest stations 
-    #start_time_over, closest_st_names_over = nearest_station(file_path, stations_names)
-    start_times_over, closest_sts_names_over  = nearest_two_stations(df_over, stations_names)
-    start_times_under, closest_sts_under = nearest_two_stations(df_under, stations_names)
-
-    # Here we choose wether we are going to work with the closest or with the second closest
-    if station == "first":
-        start_time_over, closest_st_names_over = start_times_over[0], closest_sts_names_over[0]
-        start_time_under, closest_st_under = start_times_under[0], closest_sts_under[0]
-
-    elif station == "second":
-        start_time_over, closest_st_names_over = start_times_over[1], closest_sts_names_over[1]
-        start_time_under, closest_st_under = start_times_under[1], closest_sts_under[1]
-
-    station_no_event = closest_st_names_over
-    ic(station_no_event)
-    # ------------------------------------
-    # Events M>=magnitude processing
-    # ------------------------------------
-
-    # Crear una lista con las estaciones más cercanas para cada evento
-    closest_sts_tr = [stations_dic_tr[estacion] for estacion in closest_st_names_over]
-
-    # Tomamos trazas que parten en el inicio de cada evento y toman todo el resto de la señal 
-    start_traces = [sts.slice(start) for sts, start in zip(closest_sts_tr, start_time_over)]
-    # Se calcula el punto donde cada traza tendría su finalización del evento
-    end_events_traces = [endpoint_event(st.data)[1] for st in start_traces]
-
-    post_event = end_events_traces
-    sliced_traces = [traces.slice(start, start + post_event[i]*sample_rate) for i, (traces, start) in enumerate(zip(closest_sts_tr, start_time_over))]
-
-    # Calculate energy and power 
-    _, power_events = zip(*[energy_power(st.data) for st in sliced_traces])
-
-
-    # ------------------------------------
-    # Events M<4 processing
-    # ------------------------------------
-
-    #start_time_under, closest_sts_under = nearest_station(events_under, stations_names)
-    closest_sts_tr_under = [stations_dic_tr[estacion] for estacion in closest_st_under]
-
-    # Tomamos trazas que parten en el inicio de cada evento y toman todo el resto de la señal 
-    start_tr_under = [sts.slice(start) for sts, start in zip(closest_sts_tr_under, start_time_under)]
-    # Se calcula el punto donde cada traza tendría su finalización del evento
-    end_events_tr_under = [endpoint_event(st.data)[1] for st in start_tr_under]
-
-    post_event_under = end_events_tr_under
-    sliced_traces_under = [traces.slice(start , start + post_event_under [i]*sample_rate) for i, (traces, start) in enumerate(zip(closest_sts_tr_under, start_time_under))]
-
-    # Calculate energy and power 
-    _, power_events_under = zip(*[energy_power(st.data) for st in sliced_traces_under])
-
-    # ------------------------------------
-    # No Events (Noise)
-    # ------------------------------------
-    random_intervals = no_event_df.sample(n=intervals, random_state=1)
-
-    # Convertir las columnas 'Start' y 'End' a datetime
-    random_intervals['Start'] = pd.to_datetime(random_intervals['Start'])
-    random_intervals['End'] = pd.to_datetime(random_intervals['End'])
-
-    # Crear las listas start_times_no_events y end_time_no_events
-    start_times_no_events = random_intervals['Start'].dt.strftime('%Y-%m-%dT%H:%M:%S.000000Z').tolist()
-    end_time_no_events = random_intervals['End'].dt.strftime('%Y-%m-%dT%H:%M:%S.000000Z').tolist()
-
-    start_times_no_events = [UTCDateTime(time) for time in start_times_no_events]
-    end_time_no_events = [UTCDateTime(time) for time in end_time_no_events]
-    start_times_no_events.sort()
-    end_time_no_events.sort()
-
-    station_no_event = station_no_event*intervals
-    closest_sts_tr_no_event = [stations_dic_tr[estacion] for estacion in station_no_event]
-
-    sliced_traces_no_event = [traces.slice(start, start + 60) for traces, start in zip(closest_sts_tr_no_event, start_times_no_events)]
-
-    # Calculate energy and power 
-    energy_events_no_events, power_events_no_event = zip(*[energy_power(st.data) for st in sliced_traces_no_event])
-
-    # ------------------------------------
-    # Adding all of them to plot histogram
-    # ------------------------------------
-
-    power_events_all = [power_events, power_events_under, power_events_no_event]
-
-    # ------------------------------------
-    # ROC curve anc Confussion Matrix with Power as criteria
-    # ------------------------------------
-
-    # La siguiente linea de código toma la potencia en el último frame para cada evento (o no evento)
-    power_last_frame = [arr[-1] for tup in power_events_all for arr in tup]
-    data_power = np.array(power_last_frame)
-    # Como estamos trabajando con el log de 10 antes, lo hacemos tambien acá, hace todo más bonito jjjjjeee
-    data_power = np.log10(data_power)
-
-    labels_power_class1 = np.concatenate([np.ones(len(power_events_all[0])),
-                            np.ones(len(power_events_all[1])),
-                            np.zeros(len(power_events_all[2]))])
-    
-    optimal_thr_power_class1 = calculate_optimal_threshold(labels_power_class1, data_power)
-
-    labels_power_class2 = np.concatenate([np.ones(len(power_events_all[0])),
-                                np.zeros(len(power_events_all[1])),
-                                np.zeros(len(power_events_all[2]))])
-    
-    optimal_thr_power_class2 = calculate_optimal_threshold(labels_power_class2, data_power)
-
-    data = data_power
-    optminal_thrs = [optimal_thr_power_class1, optimal_thr_power_class2]
-    labels = [labels_power_class1, labels_power_class2]
-    events = power_events_all
-
-    return data, optminal_thrs, labels, events, station_no_event
+    return log_data_power, opt_thr, labels_power, power_events

@@ -89,30 +89,33 @@ def main2(station: str, magnitude: int, method: str):
 
     if station == "first":
         station_selected = 'CO10'
+        st_selected = 0
 
     elif station == "second":
         station_selected = 'AC04'
+        st_selected = 1
 
     no_event_df = pd.read_csv(f'sismos_txt/no_event_intervals_{station_selected}.txt')
 
-    data, optminal_thrs, labels, events, station_no_event = test_magnitude(file_over = file_over, file_under = file_under, no_event_df = no_event_df,
+    data, optminal_thrs, labels, events = test_magnitude(file_over = file_over, file_under = file_under, no_event_df = no_event_df,
                                                                            stations_coord = stations_coord, stations_names = stations_names, stations_dic_tr = stations_dic,
-                                                                           magnitude = magnitude, method = method, station = station)
-    return data, optminal_thrs, labels, events, station_no_event
+                                                                           magnitude = magnitude, method = method, station = st_selected)
+    return data, optminal_thrs, labels, events, station_selected
 
 if __name__ == '__main__':
 
     st = input("Choose the station. If you want the closest type 'first', if you want the second closest type 'second':")
-    method = ['youden_index', 'euclidean_distance', 'concordance_probability']
+    methods = ['youden_index', 'euclidean_distance', 'concordance_probability']
+    method_to_test = methods[1]
 
-    magnitudes_a_probar = np.arange(3.0, 5.6, 0.1).round(1)
-    magnitude, labels, data, optminal_thrs, events, station = main(st, magnitudes_a_probar, method[2])
+    #magnitudes_a_probar = np.arange(3.0, 5.6, 0.1).round(1)
+    #magnitude, labels, data, optminal_thrs, events, station = main(st, magnitudes_a_probar, method_to_test)
 
-
-    # magnitude = float(input("Enter the magnitude to separate the events: "))
-    # data, optminal_thrs, labels, events, station_no_event = main2(st, magnitude, method[2])
-    # station = station[0]
-    # Acá abajo elegir 1 si se quiere analizar para una magnitud en particular o 0 si se quiere ver eventos vs no eventos
+    
+    magnitude = float(input("Enter the magnitude to separate the events: "))
+    data, optminal_thrs, labels, events, station = main2(st, magnitude, method_to_test)
+    #station = station_no_event[0]
+    #Acá abajo elegir 1 si se quiere analizar para una magnitud en particular o 0 si se quiere ver eventos vs no eventos
     #optminal_thrs = optminal_thrs[1]
     #labels = labels[1]
 
@@ -127,7 +130,7 @@ if __name__ == '__main__':
 
     plot_power(events, station=station, n_frames=10, use_log=True, event_type=event_type)
 
-    plot_roc_curve(labels, station, data, class_type=classes_2, method = method[2], title='ROC Curve for power')
-    plot_confusion_matrix2(optminal_thrs, station, method[2], labels, data, classes_2)
+    plot_roc_curve(labels, station, data, class_type=classes_2, method = method_to_test, title='ROC Curve for power')
+    plot_confusion_matrix2(optminal_thrs, station, method_to_test, labels, data, classes_2)
 
     plt.show()
