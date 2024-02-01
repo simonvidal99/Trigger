@@ -11,7 +11,7 @@ import matplotlib.cm as cm
 from sklearn.metrics import roc_curve, auc, confusion_matrix, ConfusionMatrixDisplay
 from obspy import read, UTCDateTime
 from astropy.visualization import hist
-from scipy.stats import norm, kstest
+from scipy.stats import norm, kstest, skew, kurtosis
 
 
 # Cuando corra el main debe estar así
@@ -273,9 +273,6 @@ def plot_power(power_events, station, n_frames=1, use_log=False, height=6, width
     #plt.show()
 
 
-from scipy.stats import norm, kstest
-import matplotlib.patches as patches
-
 def plot_power_each(power_events, station, n_frames=1, use_log=False, height = 6, width = 4, event_type=''):
 
     # Extraemos los primeros n elementos de cada array y calculamos su promedio
@@ -288,12 +285,13 @@ def plot_power_each(power_events, station, n_frames=1, use_log=False, height = 6
     # Creamos una figura con un tamaño específico
     plt.figure(figsize=(height, width))
 
+    # bins='knuth'
     # Creamos el histograma
     hist(first_n_frames, 
         bins='knuth',
         edgecolor='black', 
         alpha=0.6, 
-        density=False)  # Cambiamos a False para que el histograma no esté normalizado
+        density = False)  # Cambiamos a False para que el histograma no esté normalizado
 
     # Calculamos el promedio y la desviación estándar
     mu, std = norm.fit(first_n_frames)
@@ -302,22 +300,25 @@ def plot_power_each(power_events, station, n_frames=1, use_log=False, height = 6
     xmin, xmax = plt.xlim()
     x = np.linspace(xmin, xmax, 100)
     p = norm.pdf(x, mu, std)
-    plt.plot(x, p * len(first_n_frames) * np.diff(hist(first_n_frames, bins='knuth', density=False)[1])[0], 'k', linewidth=2, label='Curva normal')
+    plt.plot(x, p * len(first_n_frames) * np.diff(hist(first_n_frames, bins='knuth', edgecolor = "black", 
+                                                       alpha = 0.6 ,density=False)[1])[0], 'k', linewidth=2, label='Curva normal')
 
     # Realizamos la prueba de Kolmogorov-Smirnov
-    d, p_value = kstest(first_n_frames, 'norm', args=(mu, std))
+    #skewness = skew(first_n_frames)
+    #kurto = kurtosis(first_n_frames)
 
     # Agregamos el promedio, la desviación estándar y el valor p como texto en el gráfico
     textstr = '\n'.join((
         r'$\mathrm{Promedio}=%.2f$' % (mu, ),
-        r'$\mathrm{Desviación\;estándar}=%.2f$' % (std, ),
-        r'$\mathrm{Valor\;p}=%.3f$' % (p_value, )))
+        r'$\mathrm{Desviación\;estándar}=%.2f$' % (std, )))
+        #r'$\mathrm{Skewness \;(índice \;del \;sesgo)}=%.3f$' % (skewness, ),
+        #r'$\mathrm{Kurtosis \;(asimetría)}=%.3f$' % (kurto, )))
 
     # Estas son las propiedades del cuadro de texto
     props = dict(boxstyle='round', facecolor='wheat', alpha=0.3)
 
     # Colocamos un cuadro de texto en la parte superior derecha
-    plt.gca().text(0.95, 0.95, textstr, transform=plt.gca().transAxes, fontsize=8,
+    plt.gca().text(0.95, 0.95, textstr, transform=plt.gca().transAxes, fontsize=10,
         verticalalignment='top', horizontalalignment='right', bbox=props)
 
     # Agregamos títulos y etiquetas

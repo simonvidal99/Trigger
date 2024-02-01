@@ -1,6 +1,7 @@
 # Standard Library Imports
 import datetime
 import glob
+from pathlib import Path
 
 # Third-Party Library Imports
 import numpy as np
@@ -81,8 +82,10 @@ def process_station(files_bhz_ch, station_name, inventory_path):
     st_raw += read(st_files[2])
 
     #remove_file = os.path.join(inventory_path, f".{station_name.split('/')[-1]}.xml")
-    file_list = glob.glob(os.path.join(inventory_path, f"*{station_name.split('/')[-1]}.xml"))
-    #file_list = glob.glob(os.path.join(inventory_path, f"*{station_name}.xml"))
+    #file_list = glob.glob(os.path.join(inventory_path, f"*{station_name.split('/')[-1]}.xml")) # Este sirve solo en Linux
+    _, last_part = os.path.split(station_name)
+    file_list = glob.glob(os.path.join(inventory_path, f"*{last_part}.xml"))
+
     if file_list:
         remove_file = file_list[0]
 
