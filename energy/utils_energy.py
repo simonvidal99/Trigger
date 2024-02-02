@@ -22,6 +22,7 @@ from scipy.stats import norm, kstest, skew, kurtosis
 from .utils_general import *
 from .metrics import *
 
+
 def nearest_station(file_path: str, stations_names:list):
     '''
      Creamos una lista con el tiempo de partida de cada evento para la estación más cercana y una lista con el nombre de la estación más cercana para cada evento
@@ -51,7 +52,7 @@ def nearest_station(file_path: str, stations_names:list):
     return start_time, closest_st_names
 
 
-def nearest_two_stations(df: pd.DataFrame, stations_names:list):
+def nearest_n_stations(df: pd.DataFrame, stations_names:list, n: int):
     '''
      Creamos una lista con el tiempo de partida de cada evento para las dos estaciones más cercanas 
      y una lista con los nombres de las dos estaciones más cercanas para cada evento
@@ -69,13 +70,13 @@ def nearest_two_stations(df: pd.DataFrame, stations_names:list):
         horas_deteccion = [fila[f'Inicio_{station}'] for station in stations_names]
         
         # Encuentra los índices de las dos estaciones más cercanas
-        indices_estaciones_cercanas = sorted(range(len(horas_deteccion)), key=lambda k: horas_deteccion[k])[:2]
+        indices_estaciones_cercanas = sorted(range(len(horas_deteccion)), key=lambda k: horas_deteccion[k])[:n]
         
         # Guarda las dos estaciones más cercanas y las horas de detección correspondientes en el diccionario
         results[i+1] = [[stations_names[indice] for indice in indices_estaciones_cercanas], [horas_deteccion[indice] for indice in indices_estaciones_cercanas]]
 
-    start_times = [[UTCDateTime(results[clave][1][j]) for clave in sorted(results)] for j in range(2)]
-    closest_st_names = [[results[clave][0][j] for clave in sorted(results)] for j in range(2)]
+    start_times = [[UTCDateTime(results[clave][1][j]) for clave in sorted(results)] for j in range(n)]
+    closest_st_names = [[results[clave][0][j] for clave in sorted(results)] for j in range(n)]
 
     return start_times, closest_st_names
 
@@ -273,7 +274,7 @@ def plot_power(power_events, station, n_frames=1, use_log=False, height=6, width
     #plt.show()
 
 
-def plot_power_each(power_events, station, n_frames=1, use_log=False, height = 6, width = 4, event_type=''):
+def plot_power_each(power_events, station, n_frames=1, use_log=False, height = 6, width = 4, event_type='', density = False, bar_color='blue'):
 
     # Extraemos los primeros n elementos de cada array y calculamos su promedio
     first_n_frames = [np.mean(evento[:n_frames]) for evento in power_events]
@@ -285,13 +286,13 @@ def plot_power_each(power_events, station, n_frames=1, use_log=False, height = 6
     # Creamos una figura con un tamaño específico
     plt.figure(figsize=(height, width))
 
-    # bins='knuth'
     # Creamos el histograma
     hist(first_n_frames, 
         bins='knuth',
         edgecolor='black', 
         alpha=0.6, 
-        density = False)  # Cambiamos a False para que el histograma no esté normalizado
+        color=bar_color,  # Usamos el color definido en el parámetro
+        density = density)  # Cambiamos a False para que el histograma no esté normalizado
 
     # Calculamos el promedio y la desviación estándar
     mu, std = norm.fit(first_n_frames)
@@ -300,19 +301,13 @@ def plot_power_each(power_events, station, n_frames=1, use_log=False, height = 6
     xmin, xmax = plt.xlim()
     x = np.linspace(xmin, xmax, 100)
     p = norm.pdf(x, mu, std)
-    plt.plot(x, p * len(first_n_frames) * np.diff(hist(first_n_frames, bins='knuth', edgecolor = "black", 
-                                                       alpha = 0.6 ,density=False)[1])[0], 'k', linewidth=2, label='Curva normal')
-
-    # Realizamos la prueba de Kolmogorov-Smirnov
-    #skewness = skew(first_n_frames)
-    #kurto = kurtosis(first_n_frames)
+    plt.plot(x, p * len(first_n_frames) * np.diff(hist(first_n_frames, bins ='knuth', edgecolor = "black", 
+                                                       alpha = 0.6 ,density = density)[1])[0], 'k', linewidth=2, label='Curva normal')
 
     # Agregamos el promedio, la desviación estándar y el valor p como texto en el gráfico
     textstr = '\n'.join((
         r'$\mathrm{Promedio}=%.2f$' % (mu, ),
         r'$\mathrm{Desviación\;estándar}=%.2f$' % (std, )))
-        #r'$\mathrm{Skewness \;(índice \;del \;sesgo)}=%.3f$' % (skewness, ),
-        #r'$\mathrm{Kurtosis \;(asimetría)}=%.3f$' % (kurto, )))
 
     # Estas son las propiedades del cuadro de texto
     props = dict(boxstyle='round', facecolor='wheat', alpha=0.3)
@@ -328,7 +323,6 @@ def plot_power_each(power_events, station, n_frames=1, use_log=False, height = 6
         title = 'Log de la ' + title
         xlabel = 'Log de la ' + xlabel
 
-    plt.xlim([3,14])
     plt.title(title)
     plt.xlabel(xlabel)
     plt.ylabel('Frecuencia')

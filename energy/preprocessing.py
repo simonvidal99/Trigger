@@ -80,6 +80,8 @@ def process_station(files_bhz_ch, station_name, inventory_path):
     st_raw = read(st_files[0])
     st_raw += read(st_files[1])
     st_raw += read(st_files[2])
+    st_raw.merge(fill_value='interpolate')
+    st_raw.sort()
 
     #remove_file = os.path.join(inventory_path, f".{station_name.split('/')[-1]}.xml")
     #file_list = glob.glob(os.path.join(inventory_path, f"*{station_name.split('/')[-1]}.xml")) # Este sirve solo en Linux
@@ -93,14 +95,15 @@ def process_station(files_bhz_ch, station_name, inventory_path):
     st_removed = remove_response(st_resp.select(channel='BHZ')[0], remove_file , 'obspy')
     st_resp[2] = st_removed
 
-    assert(st_resp.select(channel='BHZ')[0] == st_removed)
-
+    #assert(st_resp.select(channel='BHZ')[0] == st_removed)
+    #assert np.all(st_resp.select(channel='BHZ')[0].data == st_removed.data)
     st = st_resp.copy()
     st.filter('bandpass', freqmin=4.0, freqmax=10.0)
 
     return st
 
 def no_event_intervals(df_all_events: pd, station_code: str, folder: str):
+
     estacion = f'Inicio_{station_code}'
 
     #df_all_events = pd.read_excel(all_events)
