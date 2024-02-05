@@ -197,7 +197,7 @@ def energy_power(signal, window_size = 160, sample_rate = 40, hop_lenght = 160):
 
 
 
-def plot_power(power_events, station, n_frames=1, use_log=False, height=6, width=4, event_type=None, use_mean=False,ax=None):
+def plot_power(power_events, station, n_frames=1, use_log=False, height=6, width=4, event_type=None, use_mean=False, ax=None, density = False):
 
     original_setting = plt.rcParams['figure.constrained_layout.use']
     plt.rcParams['figure.constrained_layout.use'] = True
@@ -216,6 +216,10 @@ def plot_power(power_events, station, n_frames=1, use_log=False, height=6, width
 
     # Definimos una lista de colores
     colors = ['b', 'g', 'r', 'c', 'm', 'y', 'k']
+
+    # Definimos una lista de alphas personalizada para cada clase
+    alphas = [0.6, 0.45, 0.25, 0.3, 0.7, 0.5, 0.9]
+
 
     # Encontrar la longitud máxima del array más largo en power_events
     max_len = max(max(len(eventos) for eventos in events) for events in power_events)
@@ -236,23 +240,25 @@ def plot_power(power_events, station, n_frames=1, use_log=False, height=6, width
         if use_log:
             first_n_frames = np.log10(first_n_frames)
 
-        # plt.hist(
-        #     first_n_frames,
-        #     bins=40,  # Aumenta la cantidad de bins
-        #     edgecolor='black',
-        #     color=colors[i % len(colors)],
-        #     alpha=0.6,  # Ajusta la transparencia
-        #     label=event_type[i] if event_type else None
-        # )
-            bins=['knuth']
-            ax.hist(first_n_frames, 
-                 bins = 10,
+            bins= 'knuth'
+            hist(first_n_frames, 
+                 bins = bins,
                  edgecolor='black', 
                  color=colors[i % len(colors)], 
                  #histtype='stepfilled',
-                 alpha=0.6, 
+                 alpha=alphas[i % len(alphas)], 
                  label=event_type[i] if event_type else None,
-                 density=False)
+                 density=density)
+            
+                # Calculamos el promedio y la desviación estándar
+            mu, std = norm.fit(first_n_frames)
+
+            # Dibujamos la curva de ajuste normal
+            xmin, xmax = plt.xlim()
+            x = np.linspace(xmin, xmax, 100)
+            p = norm.pdf(x, mu, std)
+            plt.plot(x, p * len(first_n_frames) * np.diff(hist(first_n_frames, bins ='knuth', edgecolor = "black", color=colors[i % len(colors)],
+                                                            alpha=alphas[i % len(alphas)] , density = density)[1])[0], color=colors[i % len(colors)], linewidth=2, label= f'Promedio: {mu.round(2)}, Std: {std.round(2)}')
 
     title = 'Potencia de los primeros {} frames. Station {}'.format(n_frames, station)
     xlabel = 'Potencia'
@@ -333,67 +339,10 @@ def plot_power_each(power_events, station, n_frames=1, use_log=False, height = 6
 
 
 
+def plot_energy_hist(energy_events, station, frame=1, use_log=False, height = 6, width = 4, event_type=None):
 
 
-
-
-# def plot_energy_hist(energy_events, station, frame=1, use_log=False, height = 6, width = 4, event_type=None):
-
-
-#     plt.figure(figsize=(height, width))
-
-#     # Definimos una lista de colores
-#     colors = ['b', 'g', 'r', 'c', 'm', 'y', 'k']
-
-#     # Encontrar la longitud máxima del array más largo en power_events
-#     max_len = max(max(len(eventos) for eventos in events) for events in energy_events)
-
-#     for i, events in enumerate(energy_events):
-
-#         energy_frame = [eventos[frame-1] if len(eventos) > frame-1 else 1 for eventos in events]
-
-#         if use_log:
-#             energy_frame = np.log10(energy_frame)
-
-#         #plt.hist(energy_frame, bins=10, edgecolor='black', color=colors[i % len(colors)], alpha=0.5, label=event_type[i] if event_type else None)
-#         bins = ['knuth']
-#         hist(energy_frame, 
-#             bins= 10, 
-#             edgecolor='black', 
-#             color=colors[i % len(colors)], 
-#             #histtype='stepfilled',
-#             alpha=0.6, 
-#             label=event_type[i] if event_type else None,
-#             density=False)
-               
-
-#     title = 'Energía en el frame {}. Estación {}'.format(frame, station)
-#     xlabel = 'Energía'
-#     if use_log:
-#         title = 'Log de la ' + title
-#         xlabel = 'Log de la ' + xlabel
-
-#     plt.xlim([4,15])
-#     plt.ylim([0,50])
-#     plt.title(title)
-#     plt.xlabel(xlabel)
-#     plt.ylabel('Frecuencia')
-
-#     # Añadimos la leyenda si event_type no es None
-#     if event_type:
-#         plt.legend()
-
-
-#     plt.show()
-
-def plot_energy_hist(energy_events, station, frame=1, use_log=False, event_type=None, ax=None):
-
-    original_setting = plt.rcParams['figure.constrained_layout.use']
-    plt.rcParams['figure.constrained_layout.use'] = True
-
-    # If no ax was provided, create a new figure and ax
-    if ax is None:
-        fig, ax = plt.subplots()
+    plt.figure(figsize=(height, width))
 
     # Definimos una lista de colores
     colors = ['b', 'g', 'r', 'c', 'm', 'y', 'k']
@@ -408,15 +357,17 @@ def plot_energy_hist(energy_events, station, frame=1, use_log=False, event_type=
         if use_log:
             energy_frame = np.log10(energy_frame)
 
-        # Use ax.hist instead of plt.hist
+        #plt.hist(energy_frame, bins=10, edgecolor='black', color=colors[i % len(colors)], alpha=0.5, label=event_type[i] if event_type else None)
         bins = ['knuth']
-        ax.hist(energy_frame, 
+        hist(energy_frame, 
             bins= 10, 
             edgecolor='black', 
             color=colors[i % len(colors)], 
+            #histtype='stepfilled',
             alpha=0.6, 
             label=event_type[i] if event_type else None,
             density=False)
+               
 
     title = 'Energía en el frame {}. Estación {}'.format(frame, station)
     xlabel = 'Energía'
@@ -424,17 +375,68 @@ def plot_energy_hist(energy_events, station, frame=1, use_log=False, event_type=
         title = 'Log de la ' + title
         xlabel = 'Log de la ' + xlabel
 
-    ax.set_xlim([4,15])
-    ax.set_ylim([0,50])
-    ax.set_title(title)
-    ax.set_xlabel(xlabel)
-    ax.set_ylabel('Frecuencia')
+    plt.xlim([4,15])
+    plt.ylim([0,50])
+    plt.title(title)
+    plt.xlabel(xlabel)
+    plt.ylabel('Frecuencia')
 
     # Añadimos la leyenda si event_type no es None
     if event_type:
-        ax.legend()
+        plt.legend()
 
-    plt.rcParams['figure.constrained_layout.use'] = original_setting
+
+    plt.show()
+
+# def plot_energy_hist(energy_events, station, frame=1, use_log=False, event_type=None, ax=None):
+
+#     original_setting = plt.rcParams['figure.constrained_layout.use']
+#     plt.rcParams['figure.constrained_layout.use'] = True
+
+#     # If no ax was provided, create a new figure and ax
+#     if ax is None:
+#         fig, ax = plt.subplots()
+
+#     # Definimos una lista de colores
+#     colors = ['b', 'g', 'r', 'c', 'm', 'y', 'k']
+
+#     # Encontrar la longitud máxima del array más largo en power_events
+#     max_len = max(max(len(eventos) for eventos in events) for events in energy_events)
+
+#     for i, events in enumerate(energy_events):
+
+#         energy_frame = [eventos[frame-1] if len(eventos) > frame-1 else 1 for eventos in events]
+
+#         if use_log:
+#             energy_frame = np.log10(energy_frame)
+
+#         # Use ax.hist instead of plt.hist
+#         bins = ['knuth']
+#         ax.hist(energy_frame, 
+#             bins= 10, 
+#             edgecolor='black', 
+#             color=colors[i % len(colors)], 
+#             alpha=0.6, 
+#             label=event_type[i] if event_type else None,
+#             density=False)
+
+#     title = 'Energía en el frame {}. Estación {}'.format(frame, station)
+#     xlabel = 'Energía'
+#     if use_log:
+#         title = 'Log de la ' + title
+#         xlabel = 'Log de la ' + xlabel
+
+#     ax.set_xlim([4,15])
+#     ax.set_ylim([0,50])
+#     ax.set_title(title)
+#     ax.set_xlabel(xlabel)
+#     ax.set_ylabel('Frecuencia')
+
+#     # Añadimos la leyenda si event_type no es None
+#     if event_type:
+#         ax.legend()
+
+#     plt.rcParams['figure.constrained_layout.use'] = original_setting
         
 if __name__ == '__main__':
     

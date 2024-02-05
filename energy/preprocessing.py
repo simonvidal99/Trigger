@@ -159,7 +159,7 @@ def data_power(file_over: pd.DataFrame, file_under: pd.DataFrame, no_event_df: p
     # ------------------------------------
     # Events M>=4 and M<4 station selection
     # ------------------------------------
-    start_times_over_, closest_sts_names_over_  = nearest_two_stations(df_over, stations_names)
+    start_times_over_, closest_sts_names_over_  = nearest_n_stations(df_over, stations_names)
     
     # M>magnitude
     closest_sts_tr_over = [stations_dic[estacion] for estacion in closest_sts_names_over_[st_selection]] 
