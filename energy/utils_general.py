@@ -52,7 +52,7 @@ def calculate_detection_times(df: pd.DataFrame, stations_coord, v_P, magnitude_r
             formatted_df[col] = formatted_df[col].apply(lambda time: time.strftime('%Y-%m-%dT%H:%M:%S') if pd.notnull(time) else '')
 
     # Selecciona solo las columnas de tiempo, magnitud y distancia
-    columns = ['Fecha UTC', 'Magnitud'] + [f'Inicio_{station}' for station in stations_coord.keys()] #+ [f'Distancia a estación {station}' for station in stations_coord.keys()]
+    columns = ['Fecha UTC', 'Latitud', 'Longitud', 'Magnitud'] + [f'Inicio_{station}' for station in stations_coord.keys()] #+ [f'Distancia a estación {station}' for station in stations_coord.keys()]
     formatted_df = formatted_df[columns]
     
     # Filtra eventos con magnitud dentro del rango especificado

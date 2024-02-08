@@ -242,7 +242,7 @@ def plot_power(power_events, station, n_frames=1, use_log=False, height=6, width
 
             bins= 'knuth'
             hist(first_n_frames, 
-                 bins = bins,
+                 bins = 10,
                  edgecolor='black', 
                  color=colors[i % len(colors)], 
                  #histtype='stepfilled',
@@ -257,7 +257,7 @@ def plot_power(power_events, station, n_frames=1, use_log=False, height=6, width
             xmin, xmax = plt.xlim()
             x = np.linspace(xmin, xmax, 100)
             p = norm.pdf(x, mu, std)
-            plt.plot(x, p * len(first_n_frames) * np.diff(hist(first_n_frames, bins ='knuth', edgecolor = "black", color=colors[i % len(colors)],
+            plt.plot(x, p * len(first_n_frames) * np.diff(hist(first_n_frames, bins =10, edgecolor = "black", color=colors[i % len(colors)],
                                                             alpha=alphas[i % len(alphas)] , density = density)[1])[0], color=colors[i % len(colors)], linewidth=2, label= f'Promedio: {mu.round(2)}, Std: {std.round(2)}')
 
     title = 'Potencia de los primeros {} frames. Station {}'.format(n_frames, station)
