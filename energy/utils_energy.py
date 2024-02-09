@@ -197,7 +197,7 @@ def energy_power(signal, window_size = 160, sample_rate = 40, hop_lenght = 160):
 
 
 
-def plot_power(power_events, station, n_frames=1, use_log=False, height=6, width=4, event_type=None, use_mean=False, ax=None, density = False, x_lim = 16 ,y_lim = 50):
+def plot_power(power_events, station, n_frames=1, use_log=False, height=6, width=4, event_type=None, use_mean=False, density = False, x_lim = 16 ,y_lim = 50):
 
     original_setting = plt.rcParams['figure.constrained_layout.use']
     plt.rcParams['figure.constrained_layout.use'] = True
@@ -205,20 +205,15 @@ def plot_power(power_events, station, n_frames=1, use_log=False, height=6, width
 
     #plt.figure(figsize=(height, width))
 
-    if ax is None:
-        fig, ax = plt.subplots(figsize=(height, width)
-                               )
-    else:
-        fig = ax.figure
-        fig.set_constrained_layout(True)
 
+    fig, ax = plt.subplots(figsize=(height, width))
     fig.set_constrained_layout(True)
 
     # Definimos una lista de colores
     colors = ['b', 'g', 'r', 'c', 'm', 'y', 'k']
 
     # Definimos una lista de alphas personalizada para cada clase
-    alphas = [0.6, 0.45, 0.25, 0.3, 0.7, 0.5, 0.9]
+    alphas = [0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3]
 
 
     # Encontrar la longitud máxima del array más largo en power_events
@@ -240,9 +235,9 @@ def plot_power(power_events, station, n_frames=1, use_log=False, height=6, width
         if use_log:
             first_n_frames = np.log10(first_n_frames)
 
-            bins= 'knuth'
+            bins = 'knuth'
             hist(first_n_frames, 
-                 bins = 10,
+                 bins = bins,
                  edgecolor='black', 
                  color=colors[i % len(colors)], 
                  #histtype='stepfilled',
@@ -250,15 +245,17 @@ def plot_power(power_events, station, n_frames=1, use_log=False, height=6, width
                  label=event_type[i] if event_type else None,
                  density=density)
             
-                # Calculamos el promedio y la desviación estándar
+            # Calculamos el promedio y la desviación estándar
             mu, std = norm.fit(first_n_frames)
 
             # Dibujamos la curva de ajuste normal
             xmin, xmax = plt.xlim()
             x = np.linspace(xmin, xmax, 100)
-            p = norm.pdf(x, mu, std)
-            plt.plot(x, p * len(first_n_frames) * np.diff(hist(first_n_frames, bins =10, edgecolor = "black", color=colors[i % len(colors)],
+            p = norm.pdf(x, mu, std)    
+            plt.plot(x, p * len(first_n_frames) * np.diff(hist(first_n_frames, bins =bins, edgecolor = "black", color=colors[i % len(colors)],
                                                             alpha=alphas[i % len(alphas)] , density = density)[1])[0], color=colors[i % len(colors)], linewidth=2, label= f'Promedio: {mu.round(2)}, Std: {std.round(2)}')
+
+
 
     title = 'Potencia de los primeros {} frames. Station {}'.format(n_frames, station)
     xlabel = 'Potencia'
