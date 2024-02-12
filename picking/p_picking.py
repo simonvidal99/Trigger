@@ -326,6 +326,7 @@ def p_picking_each(station, ventana_10s, ventana_30s, nsta, nlta, thr_on, thr_of
 
     # Inicializar el cálculo STA/LTA para los primeros 30 segundos de la traza.
     cft_main = inicializar_sta_lta(tr_main, int(nsta * fs), int(nlta * fs))
+    #cft_main = classic_sta_lta(tr_main.data, int(nsta * fs), int(nlta * fs))
     initial_tr_main = tr_main.slice(endtime=tr_main.stats.starttime + ventana_30s)
 
     time_trigger = []
@@ -337,20 +338,25 @@ def p_picking_each(station, ventana_10s, ventana_30s, nsta, nlta, thr_on, thr_of
             break
         new_tr_main = tr_main.slice(starttime = tr_main.stats.starttime + i/fs, endtime = tr_main.stats.starttime + end_window/fs)
         cft_main = actualizar_sta_lta(initial_tr_main , new_tr_main, int(nsta * fs), int(nlta * fs))
+        #cft_main = classic_sta_lta(new_tr_main, int(nsta * fs), int(nlta * fs))
 
         # Si se activa se plotea
         if np.any(cft_main > thr_on):
-            # Convertimos starttime a una cadena que solo contiene la fecha, la hora y los minutos
-            time_main_str = new_tr_main.stats.starttime.strftime("%Y-%m-%dT%H:%M")
-            # Creamos una lista separada para las comparaciones
-            time_trigger_main_comp = [t.strftime("%Y-%m-%dT%H:%M") for t in time_trigger]
-
-            #durante los próximos 30 segundos buscamos el peak de la amplitud de la señal
-
+            # Encuentra el índice del primer valor que supera el umbral
+            trigger_index = np.where(cft_main > thr_on)[0][0]
             
-            # No aseguramos de que el tiempo de inicio del sismo no se haya registrado antes
-            if time_main_str not in time_trigger_main_comp:
-                time_trigger.append(new_tr_main.stats.starttime)
+            # Calcula el tiempo correspondiente
+            trigger_time = new_tr_main.stats.starttime + trigger_index / fs
+            
+            # Convertimos trigger_time a una cadena que solo contiene la fecha, la hora y los minutos
+            time_trigger_str = trigger_time.strftime("%Y-%m-%dT%H:%M")
+            
+            # Creamos una lista separada para las comparaciones
+            time_trigger_comp = [t.strftime("%Y-%m-%dT%H:%M") for t in time_trigger]
+            
+            # Nos aseguramos de que el tiempo de inicio del sismo no se haya registrado antes
+            if time_trigger_str not in time_trigger_comp:
+                time_trigger.append(trigger_time)
 
 
         initial_tr_main  = new_tr_main

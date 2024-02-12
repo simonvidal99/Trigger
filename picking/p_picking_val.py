@@ -155,3 +155,83 @@ def p_picking_val(stations, ventana_10s, ventana_30s, nsta, nlta, v_P, coord_lis
         initial_tr_main  = new_tr_main
         
     return time_trigger_main, time_trigger_all
+
+
+def p_picking_each(station, ventana_10s, ventana_30s, nsta, nlta, thr_on, thr_off):
+
+    """
+    Función que realiza el picking de la onda P para solo una estación durante la traza completa y guarda los tiempos en que 
+    hay trigger.
+
+    Entradas:
+    ----------
+    station: obspy.core.stream.Stream
+        Estación a analizar.
+    ventana_10s: int
+        Tiempo de desplazamiento de la ventana en segundos.
+    ventana_30s: int
+        Tiempo de la señal en segundos donde se aplica el STA/LTA.
+    nsta: int
+        Largo del short time average en segundos.
+    nlta: int
+        Largo del long time average en segundos.
+    thr_on: float
+        Umbral de activación del picking.
+    thr_off: float
+        Umbral de desactivación del picking.
+    
+    Salidas:
+    ----------
+    time_trigger_all: list
+        Lista que contiene tiempos cuando todas las estaciones detectan un evento
+    """
+
+    # Elección de canal para la estación
+    tr_main = station.select(channel='BHZ')[0]
+
+    # Frecuencia de muestreo
+    fs = tr_main.stats.sampling_rate
+
+    # Convertir los tamaños de ventana a muestras
+    muestras_10s = int(ventana_10s * fs)
+    muestras_30s = int(ventana_30s * fs)
+
+    # Inicializar el cálculo STA/LTA para los primeros 30 segundos de la traza.
+    #cft_main = inicializar_sta_lta(tr_main, int(nsta * fs), int(nlta * fs))
+    cft_main = classic_sta_lta(tr_main.data, int(nsta * fs), int(nlta * fs))
+    initial_tr_main = tr_main.slice(endtime=tr_main.stats.starttime + ventana_30s)
+
+    time_trigger = []
+
+    for i in range(10, len(tr_main), muestras_10s):
+        # Tomar la sección actual de 30 segundos
+        end_window = i + muestras_30s
+        if end_window > len(tr_main):
+            break
+        new_tr_main = tr_main.slice(starttime = tr_main.stats.starttime + i/fs, endtime = tr_main.stats.starttime + end_window/fs)
+        #cft_main = actualizar_sta_lta(initial_tr_main , new_tr_main, int(nsta * fs), int(nlta * fs))
+        cft_main = classic_sta_lta(new_tr_main, int(nsta * fs), int(nlta * fs))
+
+        # Si se activa se plotea
+        if np.any(cft_main > thr_on):
+            # Find the time index where the condition is met
+            trigger_time_index = np.argmin(cft_main > thr_on)
+            # Convert the index to seconds
+            trigger_time_seconds = i + trigger_time_index
+
+
+            # Convertimos starttime a una cadena que solo contiene la fecha, la hora y los minutos
+            time_main_str = new_tr_main.stats.starttime.strftime("%Y-%m-%dT%H:%M")
+            # Creamos una lista separada para las comparaciones
+            time_trigger_main_comp = [t.strftime("%Y-%m-%dT%H:%M") for t in time_trigger]
+
+            #durante los próximos 30 segundos buscamos el peak de la amplitud de la señal
+
+            
+            # No aseguramos de que el tiempo de inicio del sismo no se haya registrado antes
+            if time_main_str not in time_trigger_main_comp:
+                time_trigger.append(new_tr_main.stats.starttime + trigger_time_seconds / fs)
+
+
+        initial_tr_main  = new_tr_main
+    return time_trigger

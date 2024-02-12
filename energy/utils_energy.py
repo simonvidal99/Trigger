@@ -197,7 +197,7 @@ def energy_power(signal, window_size = 160, sample_rate = 40, hop_lenght = 160):
 
 
 
-def plot_power(power_events, station, n_frames=1, use_log=False, height=6, width=4, event_type=None, use_mean=False, density = False, x_lim = 16 ,y_lim = 50):
+def plot_power(power_events, station, channel, n_frames=1, use_log=False, height=6, width=4, event_type=None, use_mean=False, density = False, x_lim = [4,16] ,y_lim = 50):
 
     original_setting = plt.rcParams['figure.constrained_layout.use']
     plt.rcParams['figure.constrained_layout.use'] = True
@@ -257,13 +257,13 @@ def plot_power(power_events, station, n_frames=1, use_log=False, height=6, width
 
 
 
-    title = 'Potencia de los primeros {} frames. Station {}'.format(n_frames, station)
+    title = 'Potencia de los primeros {} frames.{} Canal usado: {}'.format(n_frames, station, channel)
     xlabel = 'Potencia'
     if use_log:
         title = 'Log de la ' + title
         xlabel = 'Log de la ' + xlabel
 
-    ax.set_xlim([4, x_lim])
+    ax.set_xlim([x_lim[0], x_lim[1]])
     ax.set_ylim([0, y_lim])
     ax.set_title(title)
     ax.set_xlabel(xlabel)
