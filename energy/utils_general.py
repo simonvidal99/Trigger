@@ -20,14 +20,14 @@ from tqdm.auto import tqdm
 
 
 
-def calculate_detection_times(df: pd.DataFrame, stations_coord, v_P, magnitude_range=(3.5, 10.0)):
+def calculate_detection_times(df: pd.DataFrame, stations_coord: dict, v_P: float, magnitude_range=(3.5, 10.0)):
     """
     Calcula los tiempos de detección de los eventos sísmicos reales en las distintas estaciones y guarda los resultados en un DataFrame.
     Esto sería tener un DataFrame con el tiempo real de los eventos y el tiempo cuando deberían ser detectados por cada estación.
 
     Enradas:
     - df: DataFrame con los datos de los eventos sísmicos.
-    - stations_coord: Diccionario con las coordenadas de las estaciones.
+    - stations_coord: Diccionario con las coordenadas de las estaciones a analizar
     - v_P: Velocidad de la onda P.
     - magnitude_range: Tupla con el rango de magnitudes para filtrar los eventos sísmicos.
     

@@ -325,9 +325,9 @@ def p_picking_each(station, ventana_10s, ventana_30s, nsta, nlta, thr_on, thr_of
     muestras_30s = int(ventana_30s * fs)
 
     # Inicializar el cálculo STA/LTA para los primeros 30 segundos de la traza.
-    cft_main = inicializar_sta_lta(tr_main, int(nsta * fs), int(nlta * fs))
-    #cft_main = classic_sta_lta(tr_main.data, int(nsta * fs), int(nlta * fs))
-    initial_tr_main = tr_main.slice(endtime=tr_main.stats.starttime + ventana_30s)
+    #cft_main = inicializar_sta_lta(tr_main, int(nsta * fs), int(nlta * fs))
+    cft_main = classic_sta_lta(tr_main.data, int(nsta * fs), int(nlta * fs))
+    #initial_tr_main = tr_main.slice(endtime=tr_main.stats.starttime + ventana_30s)
 
     time_trigger = []
 
@@ -337,8 +337,8 @@ def p_picking_each(station, ventana_10s, ventana_30s, nsta, nlta, thr_on, thr_of
         if end_window > len(tr_main):
             break
         new_tr_main = tr_main.slice(starttime = tr_main.stats.starttime + i/fs, endtime = tr_main.stats.starttime + end_window/fs)
-        cft_main = actualizar_sta_lta(initial_tr_main , new_tr_main, int(nsta * fs), int(nlta * fs))
-        #cft_main = classic_sta_lta(new_tr_main, int(nsta * fs), int(nlta * fs))
+        #cft_main = actualizar_sta_lta(initial_tr_main , new_tr_main, int(nsta * fs), int(nlta * fs))
+        cft_main = classic_sta_lta(new_tr_main, int(nsta * fs), int(nlta * fs))
 
         # Si se activa se plotea
         if np.any(cft_main > thr_on):
@@ -359,5 +359,5 @@ def p_picking_each(station, ventana_10s, ventana_30s, nsta, nlta, thr_on, thr_of
                 time_trigger.append(trigger_time)
 
 
-        initial_tr_main  = new_tr_main
+        #initial_tr_main  = new_tr_main
     return time_trigger

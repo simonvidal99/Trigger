@@ -54,8 +54,8 @@ def nearest_station(file_path: str, stations_names:list):
 
 def nearest_n_stations(df: pd.DataFrame, stations_names:list, n: int):
     '''
-     Creamos una lista con el tiempo de partida de cada evento para las dos estaciones más cercanas 
-     y una lista con los nombres de las dos estaciones más cercanas para cada evento
+     Creamos una lista con el tiempo de partida de cada evento para las n estaciones más cercanas 
+     y una lista con los nombres de las n estaciones más cercanas para cada evento
     '''
 
     # Lee los datos
