@@ -111,7 +111,7 @@ def signal_energy(signal, frame_size = 160, sample_rate = 40, hop_lenght = 160):
 
     # Acá tomo los primeros 60 segundos porque no puedo tomar tomar todo el resto de la traza (serían horas y chocaria con otros eventos).
     # En el caso de tiempo real esto no sería necesario ya que ya habría solamente un tiempo determinado de la traza siendo examinado.
-    signal = signal[:60*sample_rate]
+    #signal = signal[:120*sample_rate]
     
     # Multiplicamos por el factor de escala dado en el paper de estimación de magnitud  
     data = signal*1e10
@@ -166,12 +166,13 @@ def endpoint_event(signal, thr_energy = 0.03, frame_size = 160):
     if index.size > 0:
         endpoint_energy = index[0] + peak_index_energy
     else:
-        endpoint_energy = len(energy) - 1  # or any other value that makes sense in your context
+        endpoint_energy = len(energy) - 1  
 
     #endpoint_energy = np.where(energy[peak_index_energy:] < threshold_energy)[0][0] + peak_index_energy
     #ic(endpoint_energy)
 
     endpoint_energy = endpoint_energy*frame_size  #porel largo del frame ya que endpoint energy entrega el frame donde se bajo del 3%, entonces necesitamos esto para tenerlo en muestras
+
     return peak_index_energy, endpoint_energy
     
 
