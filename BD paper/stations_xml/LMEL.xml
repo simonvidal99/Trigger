@@ -5,29 +5,25 @@
   <Sender>IRIS-DMC</Sender>
   <Module>IRIS WEB SERVICE: fdsnws-station | version: 1.1.52</Module>
   <ModuleURI></ModuleURI>
-  <Created>2024-02-14T22:51:42.8045</Created>
-  <Network code="C1" startDate="2012-01-01T00:00:00.0000" restrictedStatus="open">
-   <Description>Red Sismologica Nacional (RSN)</Description>
-   <Identifier type="DOI">10.7914/SN/C1
-   </Identifier>
-   <TotalNumberStations>101</TotalNumberStations>
+  <Created>2024-02-14T22:53:29.3337</Created>
+  <Network code="C" startDate="1991-01-01T00:00:00.0000" restrictedStatus="open">
+   <Description>Chilean National Seismic Network ()</Description>
+   <TotalNumberStations>54</TotalNumberStations>
    <SelectedNumberStations>1</SelectedNumberStations>
-   <Station code="TA02" startDate="2018-09-06T18:19:08.0000" restrictedStatus="open" iris:alternateNetworkCodes="_LACSN,_REALTIME,.UNRESTRICTED,.VOLCANO">
-    <Latitude>-20.270527</Latitude>
-    <Longitude>-70.131035</Longitude>
-    <Elevation>23.3</Elevation>
+   <Station code="LMEL" startDate="2010-06-01T00:00:00.0000" restrictedStatus="open" iris:alternateNetworkCodes="_FDSN-ALL,_LACSN,.UNRESTRICTED">
+    <Latitude>-33.8476</Latitude>
+    <Longitude>-70.2075</Longitude>
+    <Elevation>1536.0</Elevation>
     <Site>
-     <Name>Huaiquique</Name>
+     <Name>LMEL</Name>
     </Site>
-    <TotalNumberChannels>27</TotalNumberChannels>
+    <CreationDate>2010-06-01T00:00:00.0000</CreationDate>
+    <TotalNumberChannels>42</TotalNumberChannels>
     <SelectedNumberChannels>3</SelectedNumberChannels>
-    <Channel code="HNE" locationCode="" startDate="2018-09-06T18:19:08.0000" restrictedStatus="open">
-     <Comment>
-      <Value>T5AW0 5107</Value>
-     </Comment>
-     <Latitude>-20.270527</Latitude>
-     <Longitude>-70.131035</Longitude>
-     <Elevation>23.3</Elevation>
+    <Channel code="HNE" locationCode="" startDate="2010-06-01T00:00:00.0000" restrictedStatus="open">
+     <Latitude>-33.8476</Latitude>
+     <Longitude>-70.2075</Longitude>
+     <Elevation>1536</Elevation>
      <Depth>0</Depth>
      <Azimuth>90</Azimuth>
      <Dip>0</Dip>
@@ -36,56 +32,56 @@
      <ClockDrift>1E-04</ClockDrift>
      <CalibrationUnits>
       <Name>V</Name>
-      <Description>Volts</Description>
+      <Description>emf in volts</Description>
      </CalibrationUnits>
      <Sensor>
-      <Description>Guralp CMG5T Sensor/Quanterra 330 Linear Phase Com</Description>
+      <Description>Episensor 200 Hz 2.5 Volt per g/Quanterra 330 Line</Description>
      </Sensor>
      <Response>
      <InstrumentSensitivity>
-       <Value>427991.0</Value>
+       <Value>855981.0</Value>
        <Frequency>0.02</Frequency>
        <InputUnits>
-         <Name>COUNTS</Name>
-         <Description>Digital Counts</Description>
+         <Name>m/s**2</Name>
+         <Description>acceleration in meters per seconds squared</Description>
        </InputUnits>
        <OutputUnits>
-         <Name>COUNTS</Name>
-         <Description>Digital Counts</Description>
+         <Name>counts</Name>
+         <Description>digital counts</Description>
        </OutputUnits>
      </InstrumentSensitivity>
       <Stage number="1">
       <PolesZeros>
         <InputUnits>
-          <Name>COUNTS</Name>
-          <Description>Digital Counts</Description>
+          <Name>m/s**2</Name>
+          <Description>acceleration in meters per seconds squared</Description>
         </InputUnits>
         <OutputUnits>
           <Name>V</Name>
-          <Description>Volts</Description>
+          <Description>emf in volts</Description>
         </OutputUnits>
         <PzTransferFunctionType>LAPLACE (RADIANS/SECOND)</PzTransferFunctionType>
-        <NormalizationFactor>3.02184E12</NormalizationFactor>
-        <NormalizationFrequency>1.0</NormalizationFrequency>
+        <NormalizationFactor>2.45956E13</NormalizationFactor>
+        <NormalizationFrequency>0.02</NormalizationFrequency>
         <Pole number="0">
-          <Real minusError="0.0" plusError="0.0">-400.8</Real>
-          <Imaginary minusError="0.0" plusError="0.0">567.9</Imaginary>
+          <Real minusError="0.0" plusError="0.0">-981.0</Real>
+          <Imaginary minusError="0.0" plusError="0.0">1009.0</Imaginary>
         </Pole>
         <Pole number="1">
-          <Real minusError="0.0" plusError="0.0">-400.8</Real>
-          <Imaginary minusError="0.0" plusError="0.0">-567.9</Imaginary>
+          <Real minusError="0.0" plusError="0.0">-981.0</Real>
+          <Imaginary minusError="0.0" plusError="0.0">-1009.0</Imaginary>
         </Pole>
         <Pole number="2">
-          <Real minusError="0.0" plusError="0.0">-4749.0</Real>
-          <Imaginary minusError="0.0" plusError="0.0">0.0</Imaginary>
+          <Real minusError="0.0" plusError="0.0">-3290.0</Real>
+          <Imaginary minusError="0.0" plusError="0.0">1263.0</Imaginary>
         </Pole>
         <Pole number="3">
-          <Real minusError="0.0" plusError="0.0">-1317.0</Real>
-          <Imaginary minusError="0.0" plusError="0.0">0.0</Imaginary>
+          <Real minusError="0.0" plusError="0.0">-3290.0</Real>
+          <Imaginary minusError="0.0" plusError="0.0">-1263.0</Imaginary>
         </Pole>
       </PolesZeros>
       <StageGain>
-        <Value>1.02041</Value>
+        <Value>2.04082</Value>
         <Frequency>0.02</Frequency>
       </StageGain>
 
@@ -94,11 +90,11 @@
       <Coefficients>
         <InputUnits>
           <Name>V</Name>
-          <Description>Volts</Description>
+          <Description>emf in volts</Description>
         </InputUnits>
         <OutputUnits>
-          <Name>COUNTS</Name>
-          <Description>Digital Counts</Description>
+          <Name>counts</Name>
+          <Description>digital counts</Description>
         </OutputUnits>
         <CfTransferFunctionType>DIGITAL</CfTransferFunctionType>
       </Coefficients>
@@ -118,12 +114,12 @@
       <Stage number="3">
       <Coefficients>
         <InputUnits>
-          <Name>COUNTS</Name>
-          <Description>Digital Counts</Description>
+          <Name>counts</Name>
+          <Description>digital counts</Description>
         </InputUnits>
         <OutputUnits>
-          <Name>COUNTS</Name>
-          <Description>Digital Counts</Description>
+          <Name>counts</Name>
+          <Description>digital counts</Description>
         </OutputUnits>
         <CfTransferFunctionType>DIGITAL</CfTransferFunctionType>
         <Numerator minusError="0.0" plusError="0.0">6.43711E-14</Numerator>
@@ -207,13 +203,10 @@
       </Stage>
      </Response>
     </Channel>
-    <Channel code="HNN" locationCode="" startDate="2018-09-06T18:19:08.0000" restrictedStatus="open">
-     <Comment>
-      <Value>T5AW0 5107</Value>
-     </Comment>
-     <Latitude>-20.270527</Latitude>
-     <Longitude>-70.131035</Longitude>
-     <Elevation>23.3</Elevation>
+    <Channel code="HNN" locationCode="" startDate="2010-06-01T00:00:00.0000" restrictedStatus="open">
+     <Latitude>-33.8476</Latitude>
+     <Longitude>-70.2075</Longitude>
+     <Elevation>1536</Elevation>
      <Depth>0</Depth>
      <Azimuth>0</Azimuth>
      <Dip>0</Dip>
@@ -225,25 +218,25 @@
       <Description>emf in volts</Description>
      </CalibrationUnits>
      <Sensor>
-      <Description>Guralp CMG5T Sensor/Quanterra 330 Linear Phase Com</Description>
+      <Description>Episensor 200 Hz 2.5 Volt per g/Quanterra 330 Line</Description>
      </Sensor>
      <Response>
      <InstrumentSensitivity>
-       <Value>427991.0</Value>
+       <Value>855981.0</Value>
        <Frequency>0.02</Frequency>
        <InputUnits>
-         <Name>M/S**2</Name>
+         <Name>m/s**2</Name>
          <Description>acceleration in meters per seconds squared</Description>
        </InputUnits>
        <OutputUnits>
-         <Name>COUNTS</Name>
+         <Name>counts</Name>
          <Description>digital counts</Description>
        </OutputUnits>
      </InstrumentSensitivity>
       <Stage number="1">
       <PolesZeros>
         <InputUnits>
-          <Name>M/S**2</Name>
+          <Name>m/s**2</Name>
           <Description>acceleration in meters per seconds squared</Description>
         </InputUnits>
         <OutputUnits>
@@ -251,27 +244,27 @@
           <Description>emf in volts</Description>
         </OutputUnits>
         <PzTransferFunctionType>LAPLACE (RADIANS/SECOND)</PzTransferFunctionType>
-        <NormalizationFactor>3.02184E12</NormalizationFactor>
-        <NormalizationFrequency>1.0</NormalizationFrequency>
+        <NormalizationFactor>2.45956E13</NormalizationFactor>
+        <NormalizationFrequency>0.02</NormalizationFrequency>
         <Pole number="0">
-          <Real minusError="0.0" plusError="0.0">-400.8</Real>
-          <Imaginary minusError="0.0" plusError="0.0">567.9</Imaginary>
+          <Real minusError="0.0" plusError="0.0">-981.0</Real>
+          <Imaginary minusError="0.0" plusError="0.0">1009.0</Imaginary>
         </Pole>
         <Pole number="1">
-          <Real minusError="0.0" plusError="0.0">-400.8</Real>
-          <Imaginary minusError="0.0" plusError="0.0">-567.9</Imaginary>
+          <Real minusError="0.0" plusError="0.0">-981.0</Real>
+          <Imaginary minusError="0.0" plusError="0.0">-1009.0</Imaginary>
         </Pole>
         <Pole number="2">
-          <Real minusError="0.0" plusError="0.0">-4749.0</Real>
-          <Imaginary minusError="0.0" plusError="0.0">0.0</Imaginary>
+          <Real minusError="0.0" plusError="0.0">-3290.0</Real>
+          <Imaginary minusError="0.0" plusError="0.0">1263.0</Imaginary>
         </Pole>
         <Pole number="3">
-          <Real minusError="0.0" plusError="0.0">-1317.0</Real>
-          <Imaginary minusError="0.0" plusError="0.0">0.0</Imaginary>
+          <Real minusError="0.0" plusError="0.0">-3290.0</Real>
+          <Imaginary minusError="0.0" plusError="0.0">-1263.0</Imaginary>
         </Pole>
       </PolesZeros>
       <StageGain>
-        <Value>1.02041</Value>
+        <Value>2.04082</Value>
         <Frequency>0.02</Frequency>
       </StageGain>
 
@@ -283,7 +276,7 @@
           <Description>emf in volts</Description>
         </InputUnits>
         <OutputUnits>
-          <Name>COUNTS</Name>
+          <Name>counts</Name>
           <Description>digital counts</Description>
         </OutputUnits>
         <CfTransferFunctionType>DIGITAL</CfTransferFunctionType>
@@ -304,11 +297,11 @@
       <Stage number="3">
       <Coefficients>
         <InputUnits>
-          <Name>COUNTS</Name>
+          <Name>counts</Name>
           <Description>digital counts</Description>
         </InputUnits>
         <OutputUnits>
-          <Name>COUNTS</Name>
+          <Name>counts</Name>
           <Description>digital counts</Description>
         </OutputUnits>
         <CfTransferFunctionType>DIGITAL</CfTransferFunctionType>
@@ -393,13 +386,10 @@
       </Stage>
      </Response>
     </Channel>
-    <Channel code="HNZ" locationCode="" startDate="2018-09-06T18:19:08.0000" restrictedStatus="open">
-     <Comment>
-      <Value>T5AW0 5107</Value>
-     </Comment>
-     <Latitude>-20.270527</Latitude>
-     <Longitude>-70.131035</Longitude>
-     <Elevation>23.3</Elevation>
+    <Channel code="HNZ" locationCode="" startDate="2010-06-01T00:00:00.0000" restrictedStatus="open">
+     <Latitude>-33.8476</Latitude>
+     <Longitude>-70.2075</Longitude>
+     <Elevation>1536</Elevation>
      <Depth>0</Depth>
      <Azimuth>0</Azimuth>
      <Dip>-90</Dip>
@@ -411,25 +401,25 @@
       <Description>emf in volts</Description>
      </CalibrationUnits>
      <Sensor>
-      <Description>Guralp CMG5T Sensor/Quanterra 330 Linear Phase Com</Description>
+      <Description>Episensor 200 Hz 2.5 Volt per g/Quanterra 330 Line</Description>
      </Sensor>
      <Response>
      <InstrumentSensitivity>
-       <Value>427991.0</Value>
+       <Value>855981.0</Value>
        <Frequency>0.02</Frequency>
        <InputUnits>
-         <Name>M/S**2</Name>
+         <Name>m/s**2</Name>
          <Description>acceleration in meters per seconds squared</Description>
        </InputUnits>
        <OutputUnits>
-         <Name>COUNTS</Name>
+         <Name>counts</Name>
          <Description>digital counts</Description>
        </OutputUnits>
      </InstrumentSensitivity>
       <Stage number="1">
       <PolesZeros>
         <InputUnits>
-          <Name>M/S**2</Name>
+          <Name>m/s**2</Name>
           <Description>acceleration in meters per seconds squared</Description>
         </InputUnits>
         <OutputUnits>
@@ -437,27 +427,27 @@
           <Description>emf in volts</Description>
         </OutputUnits>
         <PzTransferFunctionType>LAPLACE (RADIANS/SECOND)</PzTransferFunctionType>
-        <NormalizationFactor>3.02184E12</NormalizationFactor>
-        <NormalizationFrequency>1.0</NormalizationFrequency>
+        <NormalizationFactor>2.45956E13</NormalizationFactor>
+        <NormalizationFrequency>0.02</NormalizationFrequency>
         <Pole number="0">
-          <Real minusError="0.0" plusError="0.0">-400.8</Real>
-          <Imaginary minusError="0.0" plusError="0.0">567.9</Imaginary>
+          <Real minusError="0.0" plusError="0.0">-981.0</Real>
+          <Imaginary minusError="0.0" plusError="0.0">1009.0</Imaginary>
         </Pole>
         <Pole number="1">
-          <Real minusError="0.0" plusError="0.0">-400.8</Real>
-          <Imaginary minusError="0.0" plusError="0.0">-567.9</Imaginary>
+          <Real minusError="0.0" plusError="0.0">-981.0</Real>
+          <Imaginary minusError="0.0" plusError="0.0">-1009.0</Imaginary>
         </Pole>
         <Pole number="2">
-          <Real minusError="0.0" plusError="0.0">-4749.0</Real>
-          <Imaginary minusError="0.0" plusError="0.0">0.0</Imaginary>
+          <Real minusError="0.0" plusError="0.0">-3290.0</Real>
+          <Imaginary minusError="0.0" plusError="0.0">1263.0</Imaginary>
         </Pole>
         <Pole number="3">
-          <Real minusError="0.0" plusError="0.0">-1317.0</Real>
-          <Imaginary minusError="0.0" plusError="0.0">0.0</Imaginary>
+          <Real minusError="0.0" plusError="0.0">-3290.0</Real>
+          <Imaginary minusError="0.0" plusError="0.0">-1263.0</Imaginary>
         </Pole>
       </PolesZeros>
       <StageGain>
-        <Value>1.02041</Value>
+        <Value>2.04082</Value>
         <Frequency>0.02</Frequency>
       </StageGain>
 
@@ -469,7 +459,7 @@
           <Description>emf in volts</Description>
         </InputUnits>
         <OutputUnits>
-          <Name>COUNTS</Name>
+          <Name>counts</Name>
           <Description>digital counts</Description>
         </OutputUnits>
         <CfTransferFunctionType>DIGITAL</CfTransferFunctionType>
@@ -490,11 +480,11 @@
       <Stage number="3">
       <Coefficients>
         <InputUnits>
-          <Name>COUNTS</Name>
+          <Name>counts</Name>
           <Description>digital counts</Description>
         </InputUnits>
         <OutputUnits>
-          <Name>COUNTS</Name>
+          <Name>counts</Name>
           <Description>digital counts</Description>
         </OutputUnits>
         <CfTransferFunctionType>DIGITAL</CfTransferFunctionType>
