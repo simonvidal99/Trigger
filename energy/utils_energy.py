@@ -12,6 +12,7 @@ from sklearn.metrics import roc_curve, auc, confusion_matrix, ConfusionMatrixDis
 from obspy import read, UTCDateTime
 from astropy.visualization import hist
 from scipy.stats import norm, kstest, skew, kurtosis
+from sklearn.preprocessing import StandardScaler
 
 
 # Cuando corra el main debe estar así
@@ -220,6 +221,9 @@ def plot_power(power_events, station, channel, n_frames=1, use_log=False, height
     # Encontrar la longitud máxima del array más largo en power_events
     max_len = max(max(len(eventos) for eventos in events) for events in power_events)
 
+    # Initialize an empty list to store the data for covariance calculation
+    data_for_cov = []
+
     for i, events in enumerate(power_events):
 
         if use_mean:
@@ -255,8 +259,19 @@ def plot_power(power_events, station, channel, n_frames=1, use_log=False, height
             p = norm.pdf(x, mu, std)    
             plt.plot(x, p * len(first_n_frames) * np.diff(hist(first_n_frames, bins =bins, edgecolor = "black", color=colors[i % len(colors)],
                                                             alpha=alphas[i % len(alphas)] , density = density)[1])[0], color=colors[i % len(colors)], linewidth=2, label= f'Promedio: {mu.round(2)}, Std: {std.round(2)}')
+        # Normalize the data
+        scaler = StandardScaler()
+        normalized_data = scaler.fit_transform(np.array(first_n_frames).reshape(-1, 1)).flatten()
+
+    #     # Add the normalized data to the list for covariance calculation
+    #     data_for_cov.append(normalized_data)
 
 
+    # # Calculate the covariance matrix
+    # data_for_cov = np.vstack(data_for_cov)
+    # cov_matrix = np.cov(data_for_cov)
+    # print("Covariance matrix:")
+    # print(cov_matrix)
 
     title = 'Potencia de los primeros {} frames.{} Canal usado: {}'.format(n_frames, station, channel)
     xlabel = 'Potencia'
