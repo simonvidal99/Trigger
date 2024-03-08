@@ -199,7 +199,7 @@ def energy_power(signal, window_size = 160, sample_rate = 40, hop_lenght = 160):
 
 
 
-def plot_power(power_events, station, channel, n_frames=1, use_log=False, height=6, width=4, event_type=None, use_mean=False, density = False, x_lim = [4,16] ,y_lim = 50):
+def plot_power(power_events, station, channel, len_array ,n_frames=1, use_log=False, height=6, width=4, event_type=None, use_mean=False, density = False, x_lim = [4,16] ,y_lim = 50):
 
     original_setting = plt.rcParams['figure.constrained_layout.use']
     plt.rcParams['figure.constrained_layout.use'] = True
@@ -221,8 +221,12 @@ def plot_power(power_events, station, channel, n_frames=1, use_log=False, height
     # Encontrar la longitud máxima del array más largo en power_events
     max_len = max(max(len(eventos) for eventos in events) for events in power_events)
 
-    # Initialize an empty list to store the data for covariance calculation
-    data_for_cov = []
+    #promedio, desviación estándar, covarianza, función de densidad de probabilidad y pesos
+    x_bar = []
+    sigma = []
+    cov_matrix = []
+    pdf = []
+    weights = []
 
     for i, events in enumerate(power_events):
 
@@ -239,7 +243,6 @@ def plot_power(power_events, station, channel, n_frames=1, use_log=False, height
 
         if use_log:
             first_n_frames = np.log10(first_n_frames)
-
             bins = 'knuth'
             hist(first_n_frames, 
                  bins = bins,
@@ -252,26 +255,25 @@ def plot_power(power_events, station, channel, n_frames=1, use_log=False, height
             
             # Calculamos el promedio y la desviación estándar
             mu, std = norm.fit(first_n_frames)
+            # se calcula la covarianza
+            var = np.var(first_n_frames)
+            
+            # Se añaden a las listas
+            x_bar.append(mu)
+            sigma.append(std)
+            cov_matrix.append(var)
+            weights.append(len(first_n_frames))
 
             # Dibujamos la curva de ajuste normal
             xmin, xmax = plt.xlim()
-            x = np.linspace(xmin, xmax, 100)
-            p = norm.pdf(x, mu, std)    
-            plt.plot(x, p * len(first_n_frames) * np.diff(hist(first_n_frames, bins =bins, edgecolor = "black", color=colors[i % len(colors)],
-                                                            alpha=alphas[i % len(alphas)] , density = density)[1])[0], color=colors[i % len(colors)], linewidth=2, label= f'Promedio: {mu.round(2)}, Std: {std.round(2)}')
-        # Normalize the data
-        scaler = StandardScaler()
-        normalized_data = scaler.fit_transform(np.array(first_n_frames).reshape(-1, 1)).flatten()
-
-    #     # Add the normalized data to the list for covariance calculation
-    #     data_for_cov.append(normalized_data)
-
-
-    # # Calculate the covariance matrix
-    # data_for_cov = np.vstack(data_for_cov)
-    # cov_matrix = np.cov(data_for_cov)
-    # print("Covariance matrix:")
-    # print(cov_matrix)
+            
+            x = np.linspace(xmin, xmax, len_array)
+            gaussian = norm.pdf(x, mu, std)
+            pdf.append(gaussian)    
+            plt.plot(x, gaussian * len(first_n_frames) * np.diff(hist(first_n_frames, bins = bins, edgecolor = "black", color=colors[i % len(colors)],
+                    alpha=alphas[i % len(alphas)] , density = density)[1])[0], color=colors[i % len(colors)], linewidth=2, label= f'Promedio: {mu.round(2)}, Std: {std.round(2)}')
+            print(np.diff(hist(first_n_frames, bins = bins, edgecolor = "black", color=colors[i % len(colors)],
+                    alpha=alphas[i % len(alphas)] , density = density)[1]))
 
     title = 'Potencia de los primeros {} frames.{} Canal usado: {}'.format(n_frames, station, channel)
     xlabel = 'Potencia'
@@ -290,7 +292,15 @@ def plot_power(power_events, station, channel, n_frames=1, use_log=False, height
         ax.legend()
     plt.tight_layout()
 
-    #plt.show()
+    plt.show()
+
+    x_bar = np.array(x_bar)
+    sigma = np.array(sigma)
+    cov_matrix = np.array(cov_matrix)
+    pdf = np.array(pdf)
+    weights = np.array(weights)
+    weights = weights/np.sum(weights)
+    return x_bar, sigma, cov_matrix, weights, pdf
 
 
 def plot_power_each(power_events, station, n_frames=1, use_log=False, height = 6, width = 4, event_type='', density = False, bar_color='blue'):
