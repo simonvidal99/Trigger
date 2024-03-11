@@ -225,8 +225,8 @@ def plot_power(power_events, station, channel, len_array ,n_frames=1, use_log=Fa
     x_bar = []
     sigma = []
     cov_matrix = []
-    pdf = []
     weights = []
+    gaussians = []
 
     for i, events in enumerate(power_events):
 
@@ -263,17 +263,18 @@ def plot_power(power_events, station, channel, len_array ,n_frames=1, use_log=Fa
             sigma.append(std)
             cov_matrix.append(var)
             weights.append(len(first_n_frames))
+            #weights.append(np.diff(hist(first_n_frames, bins = bins, edgecolor = "black", color=colors[i % len(colors)],
+                                #alpha=alphas[i % len(alphas)] , density = density)[1]))
 
             # Dibujamos la curva de ajuste normal
             xmin, xmax = plt.xlim()
             
             x = np.linspace(xmin, xmax, len_array)
-            gaussian = norm.pdf(x, mu, std)
-            pdf.append(gaussian)    
+            gaussian = norm.pdf(x, mu, std) 
+            gaussians.append(gaussian) 
             plt.plot(x, gaussian * len(first_n_frames) * np.diff(hist(first_n_frames, bins = bins, edgecolor = "black", color=colors[i % len(colors)],
                     alpha=alphas[i % len(alphas)] , density = density)[1])[0], color=colors[i % len(colors)], linewidth=2, label= f'Promedio: {mu.round(2)}, Std: {std.round(2)}')
-            print(np.diff(hist(first_n_frames, bins = bins, edgecolor = "black", color=colors[i % len(colors)],
-                    alpha=alphas[i % len(alphas)] , density = density)[1]))
+
 
     title = 'Potencia de los primeros {} frames.{} Canal usado: {}'.format(n_frames, station, channel)
     xlabel = 'Potencia'
@@ -297,10 +298,10 @@ def plot_power(power_events, station, channel, len_array ,n_frames=1, use_log=Fa
     x_bar = np.array(x_bar)
     sigma = np.array(sigma)
     cov_matrix = np.array(cov_matrix)
-    pdf = np.array(pdf)
     weights = np.array(weights)
     weights = weights/np.sum(weights)
-    return x_bar, sigma, cov_matrix, weights, pdf
+    gaussians = np.array(gaussians)
+    return x_bar, sigma, cov_matrix, weights, gaussians
 
 
 def plot_power_each(power_events, station, n_frames=1, use_log=False, height = 6, width = 4, event_type='', density = False, bar_color='blue'):
