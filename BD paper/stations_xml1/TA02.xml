@@ -12,7 +12,7 @@
    </Identifier>
    <TotalNumberStations>101</TotalNumberStations>
    <SelectedNumberStations>1</SelectedNumberStations>
-   <Station code="TA02" startDate="2014-02-24T00:00:00.0000" endDate="2018-09-05T17:32:26.0067" restrictedStatus="open" iris:alternateNetworkCodes="_LACSN,_REALTIME,.UNRESTRICTED,.VOLCANO">
+   <Station code="TA02" startDate="2014-02-24T00:00:00.0000" endDate="2028-09-05T17:32:26.0067" restrictedStatus="open" iris:alternateNetworkCodes="_LACSN,_REALTIME,.UNRESTRICTED,.VOLCANO">
     <Latitude>-20.2705</Latitude>
     <Longitude>-70.1311</Longitude>
     <Elevation>86.5</Elevation>
@@ -22,7 +22,7 @@
     <CreationDate>2014-02-24T00:00:00.0000</CreationDate>
     <TotalNumberChannels>27</TotalNumberChannels>
     <SelectedNumberChannels>3</SelectedNumberChannels>
-    <Channel code="BHE" locationCode="" startDate="2014-02-24T00:00:00.0000" endDate="2018-09-05T17:32:26.0067" restrictedStatus="open">
+    <Channel code="BHE" locationCode="" startDate="2014-02-24T00:00:00.0000" endDate="2028-09-05T17:32:26.0067" restrictedStatus="open">
      <Latitude>-20.2705</Latitude>
      <Longitude>-70.1311</Longitude>
      <Elevation>86.5</Elevation>
@@ -211,7 +211,7 @@
       </Stage>
      </Response>
     </Channel>
-    <Channel code="BHN" locationCode="" startDate="2014-02-24T00:00:00.0000" endDate="2018-09-05T17:32:26.0067" restrictedStatus="open">
+    <Channel code="BHN" locationCode="" startDate="2014-02-24T00:00:00.0000" endDate="2028-09-05T17:32:26.0067" restrictedStatus="open">
      <Latitude>-20.2705</Latitude>
      <Longitude>-70.1311</Longitude>
      <Elevation>86.5</Elevation>
@@ -400,7 +400,7 @@
       </Stage>
      </Response>
     </Channel>
-    <Channel code="BHZ" locationCode="" startDate="2014-02-24T00:00:00.0000" endDate="2018-09-05T17:32:26.0067" restrictedStatus="open">
+    <Channel code="BHZ" locationCode="" startDate="2014-02-24T00:00:00.0000" endDate="2028-09-05T17:32:26.0067" restrictedStatus="open">
      <Latitude>-20.2705</Latitude>
      <Longitude>-70.1311</Longitude>
      <Elevation>86.5</Elevation>

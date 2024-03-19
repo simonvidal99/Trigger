@@ -22,7 +22,7 @@
     <CreationDate>2014-02-09T00:00:00.0000</CreationDate>
     <TotalNumberChannels>45</TotalNumberChannels>
     <SelectedNumberChannels>3</SelectedNumberChannels>
-    <Channel code="BHE" locationCode="" startDate="2014-02-09T00:00:00.0000" endDate="2017-11-14T13:55:32.6700" restrictedStatus="open">
+    <Channel code="BHE" locationCode="" startDate="2014-02-09T00:00:00.0000" endDate="2027-11-14T13:55:32.6700" restrictedStatus="open">
      <Latitude>-28.836377</Latitude>
      <Longitude>-70.273777</Longitude>
      <Elevation>1227</Elevation>
@@ -211,7 +211,7 @@
       </Stage>
      </Response>
     </Channel>
-    <Channel code="BHN" locationCode="" startDate="2014-02-09T00:00:00.0000" endDate="2017-11-14T13:55:32.6700" restrictedStatus="open">
+    <Channel code="BHN" locationCode="" startDate="2014-02-09T00:00:00.0000" endDate="2027-11-14T13:55:32.6700" restrictedStatus="open">
      <Latitude>-28.836377</Latitude>
      <Longitude>-70.273777</Longitude>
      <Elevation>1227</Elevation>
@@ -400,7 +400,7 @@
       </Stage>
      </Response>
     </Channel>
-    <Channel code="BHZ" locationCode="" startDate="2014-02-09T00:00:00.0000" endDate="2017-11-14T13:55:32.6700" restrictedStatus="open">
+    <Channel code="BHZ" locationCode="" startDate="2014-02-09T00:00:00.0000" endDate="2027-11-14T13:55:32.6700" restrictedStatus="open">
      <Latitude>-28.836377</Latitude>
      <Longitude>-70.273777</Longitude>
      <Elevation>1227</Elevation>

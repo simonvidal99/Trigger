@@ -20,7 +20,7 @@
     <CreationDate>2011-01-01T00:00:00.0000</CreationDate>
     <TotalNumberChannels>57</TotalNumberChannels>
     <SelectedNumberChannels>3</SelectedNumberChannels>
-    <Channel code="BHE" locationCode="" startDate="2018-01-26T15:48:18.9684" restrictedStatus="open">
+    <Channel code="BHE" locationCode="" startDate="2008-01-26T15:48:18.9684" restrictedStatus="open">
      <Latitude>-32.9756</Latitude>
      <Longitude>-71.0156</Longitude>
      <Elevation>2191</Elevation>
@@ -266,7 +266,7 @@
       </Stage>
      </Response>
     </Channel>
-    <Channel code="BHN" locationCode="" startDate="2018-01-26T15:48:18.9684" restrictedStatus="open">
+    <Channel code="BHN" locationCode="" startDate="2008-01-26T15:48:18.9684" restrictedStatus="open">
      <Latitude>-32.9756</Latitude>
      <Longitude>-71.0156</Longitude>
      <Elevation>2191</Elevation>
@@ -512,7 +512,7 @@
       </Stage>
      </Response>
     </Channel>
-    <Channel code="BHZ" locationCode="" startDate="2018-01-26T15:48:18.9684" restrictedStatus="open">
+    <Channel code="BHZ" locationCode="" startDate="2008-01-26T15:48:18.9684" restrictedStatus="open">
      <Latitude>-32.9756</Latitude>
      <Longitude>-71.0156</Longitude>
      <Elevation>2191</Elevation>

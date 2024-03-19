@@ -199,7 +199,7 @@ def energy_power(signal, window_size = 160, sample_rate = 40, hop_lenght = 160):
 
 
 
-def plot_power(power_events, station, channel, len_array ,n_frames=1, use_log=False, height=6, width=4, event_type=None, use_mean=False, density = False, x_lim = [4,16] ,y_lim = 50):
+def plot_power(power_events, station, channel ,n_frames=1, use_log=False, height=6, width=4, event_type=None, use_mean=False, density = False, x_lim = [4,16] ,y_lim = 50):
 
     original_setting = plt.rcParams['figure.constrained_layout.use']
     plt.rcParams['figure.constrained_layout.use'] = True
@@ -269,14 +269,14 @@ def plot_power(power_events, station, channel, len_array ,n_frames=1, use_log=Fa
             # Dibujamos la curva de ajuste normal
             xmin, xmax = plt.xlim()
             
-            x = np.linspace(xmin, xmax, len_array)
+            x = np.linspace(xmin, xmax, 100)
             gaussian = norm.pdf(x, mu, std) 
             gaussians.append(gaussian) 
             plt.plot(x, gaussian * len(first_n_frames) * np.diff(hist(first_n_frames, bins = bins, edgecolor = "black", color=colors[i % len(colors)],
                     alpha=alphas[i % len(alphas)] , density = density)[1])[0], color=colors[i % len(colors)], linewidth=2, label= f'Promedio: {mu.round(2)}, Std: {std.round(2)}')
 
-
-    title = 'Potencia de los primeros {} frames.{} Canal usado: {}'.format(n_frames, station, channel)
+    title = 'Potencia.{} Canal usado: {}'.format(station, channel)
+    #title = 'Potencia de los primeros {} frames.{} Canal usado: {}'.format(n_frames, station, channel)
     xlabel = 'Potencia'
     if use_log:
         title = 'Log de la ' + title
