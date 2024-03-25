@@ -1,0 +1,457 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<FDSNStationXML xmlns="http://www.fdsn.org/xml/station/1" schemaVersion="1.2">
+  <Source>SeisComP</Source>
+  <Sender>GFZ</Sender>
+  <Module/>
+  <ModuleURI/>
+  <Created>2024-03-25T20:12:29.296179Z</Created>
+  <Network code="CX" startDate="1980-01-01T00:00:00.000000Z" restrictedStatus="open">
+    <Description>IPOC Seismic Network (Integrated Plate boundary Observatory Chile)</Description>
+    <Identifier type="DOI">10.14470/PK615318</Identifier>
+    <Station code="PX03" startDate="2016-11-22T00:00:00.000000Z" restrictedStatus="open">
+      <Latitude unit="DEGREES">-20.40348</Latitude>
+      <Longitude unit="DEGREES">-69.63087</Longitude>
+      <Elevation>990.0</Elevation>
+      <Site>
+        <Name>IPOC Station El Huarango, Chile</Name>
+        <Country>Chile</Country>
+      </Site>
+      <CreationDate>2016-11-22T00:00:00.000000Z</CreationDate>
+      <Channel code="HLN" startDate="2016-11-22T00:00:00.000000Z" restrictedStatus="open" locationCode="">
+        <Latitude unit="DEGREES">-20.40348</Latitude>
+        <Longitude unit="DEGREES">-69.63087</Longitude>
+        <Elevation>990.0</Elevation>
+        <Depth>0.0</Depth>
+        <Azimuth unit="DEGREES">0.0</Azimuth>
+        <Dip unit="DEGREES">0.0</Dip>
+        <SampleRate unit="SAMPLES/S">100.0</SampleRate>
+        <SampleRateRatio>
+          <NumberSamples>100</NumberSamples>
+          <NumberSeconds>1</NumberSeconds>
+        </SampleRateRatio>
+        <ClockDrift unit="SECONDS/SAMPLE">0.0</ClockDrift>
+        <Sensor resourceId="Sensor/20181107193039.526125.528">
+          <Type>SM</Type>
+          <Description>GFZ:CX1980:FBA-EST/2.5/g=0</Description>
+          <Manufacturer>Kinemetrics</Manufacturer>
+          <Model>FBA-EST/2.5</Model>
+        </Sensor>
+        <DataLogger resourceId="Datalogger/20181107193039.526848.530">
+          <Description>GFZ:CX1980:CUBE/CX/g=1638400</Description>
+        </DataLogger>
+        <Response>
+          <InstrumentSensitivity>
+            <Value>417464.32</Value>
+            <Frequency>1.0</Frequency>
+            <InputUnits>
+              <Name>M/S**2</Name>
+              <Description>None</Description>
+            </InputUnits>
+            <OutputUnits>
+              <Name>COUNTS</Name>
+              <Description>None</Description>
+            </OutputUnits>
+          </InstrumentSensitivity>
+          <Stage number="1">
+            <PolesZeros name="GFZ:CX1980:FBA-EST/2.5/g=0" resourceId="ResponsePAZ/20181107193039.526326.529">
+              <InputUnits>
+                <Name>M/S**2</Name>
+              </InputUnits>
+              <OutputUnits>
+                <Name>V</Name>
+              </OutputUnits>
+              <PzTransferFunctionType>LAPLACE (RADIANS/SECOND)</PzTransferFunctionType>
+              <NormalizationFactor>24595684000000.0</NormalizationFactor>
+              <NormalizationFrequency unit="HERTZ">1.0</NormalizationFrequency>
+              <Pole number="0">
+                <Real>-981.0</Real>
+                <Imaginary>1009.0</Imaginary>
+              </Pole>
+              <Pole number="1">
+                <Real>-981.0</Real>
+                <Imaginary>-1009.0</Imaginary>
+              </Pole>
+              <Pole number="2">
+                <Real>-3290.0</Real>
+                <Imaginary>1263.0</Imaginary>
+              </Pole>
+              <Pole number="3">
+                <Real>-3290.0</Real>
+                <Imaginary>-1263.0</Imaginary>
+              </Pole>
+            </PolesZeros>
+            <StageGain>
+              <Value>0.2548</Value>
+              <Frequency>1.0</Frequency>
+            </StageGain>
+          </Stage>
+          <Stage number="2">
+            <Coefficients>
+              <InputUnits>
+                <Name>V</Name>
+              </InputUnits>
+              <OutputUnits>
+                <Name>COUNTS</Name>
+              </OutputUnits>
+              <CfTransferFunctionType>DIGITAL</CfTransferFunctionType>
+            </Coefficients>
+            <Decimation>
+              <InputSampleRate unit="HERTZ">100.0</InputSampleRate>
+              <Factor>1</Factor>
+              <Offset>0</Offset>
+              <Delay>0.0</Delay>
+              <Correction>0.0</Correction>
+            </Decimation>
+            <StageGain>
+              <Value>1638400.0</Value>
+              <Frequency>0.0</Frequency>
+            </StageGain>
+          </Stage>
+          <Stage number="3">
+            <FIR name="GFZ:CX1980:CUBE_FIR_2" resourceId="ResponseFIR/20181107193039.527581.532">
+              <InputUnits>
+                <Name>COUNTS</Name>
+              </InputUnits>
+              <OutputUnits>
+                <Name>COUNTS</Name>
+              </OutputUnits>
+              <Symmetry>ODD</Symmetry>
+              <NumeratorCoefficient>3.39893193186e-14</NumeratorCoefficient>
+              <NumeratorCoefficient>1.00136763789e-08</NumeratorCoefficient>
+              <NumeratorCoefficient>-3.04635124509e-08</NumeratorCoefficient>
+              <NumeratorCoefficient>-1.87220204145e-06</NumeratorCoefficient>
+              <NumeratorCoefficient>-1.29911185192e-06</NumeratorCoefficient>
+              <NumeratorCoefficient>9.99614276897e-05</NumeratorCoefficient>
+              <NumeratorCoefficient>-4.17623423498e-06</NumeratorCoefficient>
+              <NumeratorCoefficient>-0.000123442146958</NumeratorCoefficient>
+              <NumeratorCoefficient>0.000328634591312</NumeratorCoefficient>
+              <NumeratorCoefficient>-0.000510235142537</NumeratorCoefficient>
+              <NumeratorCoefficient>0.000501725190111</NumeratorCoefficient>
+              <NumeratorCoefficient>-0.000116871382672</NumeratorCoefficient>
+              <NumeratorCoefficient>-0.000749475220975</NumeratorCoefficient>
+              <NumeratorCoefficient>0.00200523162141</NumeratorCoefficient>
+              <NumeratorCoefficient>-0.00327961280804</NumeratorCoefficient>
+              <NumeratorCoefficient>0.00393668299586</NumeratorCoefficient>
+              <NumeratorCoefficient>-0.00322261839187</NumeratorCoefficient>
+              <NumeratorCoefficient>0.000542482588595</NumeratorCoefficient>
+              <NumeratorCoefficient>0.00419761642134</NumeratorCoefficient>
+              <NumeratorCoefficient>-0.0102965110088</NumeratorCoefficient>
+              <NumeratorCoefficient>0.0161419449849</NumeratorCoefficient>
+              <NumeratorCoefficient>-0.0193747087777</NumeratorCoefficient>
+              <NumeratorCoefficient>0.0173576811121</NumeratorCoefficient>
+              <NumeratorCoefficient>-0.00786980968797</NumeratorCoefficient>
+              <NumeratorCoefficient>-0.0101505543449</NumeratorCoefficient>
+              <NumeratorCoefficient>0.0360385607082</NumeratorCoefficient>
+              <NumeratorCoefficient>-0.0672110214057</NumeratorCoefficient>
+              <NumeratorCoefficient>0.0992542298999</NumeratorCoefficient>
+              <NumeratorCoefficient>-0.127288880056</NumeratorCoefficient>
+              <NumeratorCoefficient>0.146416261842</NumeratorCoefficient>
+              <NumeratorCoefficient>0.846760189977</NumeratorCoefficient>
+            </FIR>
+            <Decimation>
+              <InputSampleRate unit="HERTZ">100.0</InputSampleRate>
+              <Factor>1</Factor>
+              <Offset>0</Offset>
+              <Delay>0.3</Delay>
+              <Correction>0.3</Correction>
+            </Decimation>
+            <StageGain>
+              <Value>1.0</Value>
+              <Frequency>0.0</Frequency>
+            </StageGain>
+          </Stage>
+        </Response>
+      </Channel>
+      <Channel code="HLE" startDate="2016-11-22T00:00:00.000000Z" restrictedStatus="open" locationCode="">
+        <Latitude unit="DEGREES">-20.40348</Latitude>
+        <Longitude unit="DEGREES">-69.63087</Longitude>
+        <Elevation>990.0</Elevation>
+        <Depth>0.0</Depth>
+        <Azimuth unit="DEGREES">90.0</Azimuth>
+        <Dip unit="DEGREES">0.0</Dip>
+        <SampleRate unit="SAMPLES/S">100.0</SampleRate>
+        <SampleRateRatio>
+          <NumberSamples>100</NumberSamples>
+          <NumberSeconds>1</NumberSeconds>
+        </SampleRateRatio>
+        <ClockDrift unit="SECONDS/SAMPLE">0.0</ClockDrift>
+        <Sensor resourceId="Sensor/20181107193039.526125.528">
+          <Type>SM</Type>
+          <Description>GFZ:CX1980:FBA-EST/2.5/g=0</Description>
+          <Manufacturer>Kinemetrics</Manufacturer>
+          <Model>FBA-EST/2.5</Model>
+        </Sensor>
+        <DataLogger resourceId="Datalogger/20181107193039.526848.530">
+          <Description>GFZ:CX1980:CUBE/CX/g=1638400</Description>
+        </DataLogger>
+        <Response>
+          <InstrumentSensitivity>
+            <Value>417464.32</Value>
+            <Frequency>1.0</Frequency>
+            <InputUnits>
+              <Name>M/S**2</Name>
+              <Description>None</Description>
+            </InputUnits>
+            <OutputUnits>
+              <Name>COUNTS</Name>
+              <Description>None</Description>
+            </OutputUnits>
+          </InstrumentSensitivity>
+          <Stage number="1">
+            <PolesZeros name="GFZ:CX1980:FBA-EST/2.5/g=0" resourceId="ResponsePAZ/20181107193039.526326.529">
+              <InputUnits>
+                <Name>M/S**2</Name>
+              </InputUnits>
+              <OutputUnits>
+                <Name>V</Name>
+              </OutputUnits>
+              <PzTransferFunctionType>LAPLACE (RADIANS/SECOND)</PzTransferFunctionType>
+              <NormalizationFactor>24595684000000.0</NormalizationFactor>
+              <NormalizationFrequency unit="HERTZ">1.0</NormalizationFrequency>
+              <Pole number="0">
+                <Real>-981.0</Real>
+                <Imaginary>1009.0</Imaginary>
+              </Pole>
+              <Pole number="1">
+                <Real>-981.0</Real>
+                <Imaginary>-1009.0</Imaginary>
+              </Pole>
+              <Pole number="2">
+                <Real>-3290.0</Real>
+                <Imaginary>1263.0</Imaginary>
+              </Pole>
+              <Pole number="3">
+                <Real>-3290.0</Real>
+                <Imaginary>-1263.0</Imaginary>
+              </Pole>
+            </PolesZeros>
+            <StageGain>
+              <Value>0.2548</Value>
+              <Frequency>1.0</Frequency>
+            </StageGain>
+          </Stage>
+          <Stage number="2">
+            <Coefficients>
+              <InputUnits>
+                <Name>V</Name>
+              </InputUnits>
+              <OutputUnits>
+                <Name>COUNTS</Name>
+              </OutputUnits>
+              <CfTransferFunctionType>DIGITAL</CfTransferFunctionType>
+            </Coefficients>
+            <Decimation>
+              <InputSampleRate unit="HERTZ">100.0</InputSampleRate>
+              <Factor>1</Factor>
+              <Offset>0</Offset>
+              <Delay>0.0</Delay>
+              <Correction>0.0</Correction>
+            </Decimation>
+            <StageGain>
+              <Value>1638400.0</Value>
+              <Frequency>0.0</Frequency>
+            </StageGain>
+          </Stage>
+          <Stage number="3">
+            <FIR name="GFZ:CX1980:CUBE_FIR_2" resourceId="ResponseFIR/20181107193039.527581.532">
+              <InputUnits>
+                <Name>COUNTS</Name>
+              </InputUnits>
+              <OutputUnits>
+                <Name>COUNTS</Name>
+              </OutputUnits>
+              <Symmetry>ODD</Symmetry>
+              <NumeratorCoefficient>3.39893193186e-14</NumeratorCoefficient>
+              <NumeratorCoefficient>1.00136763789e-08</NumeratorCoefficient>
+              <NumeratorCoefficient>-3.04635124509e-08</NumeratorCoefficient>
+              <NumeratorCoefficient>-1.87220204145e-06</NumeratorCoefficient>
+              <NumeratorCoefficient>-1.29911185192e-06</NumeratorCoefficient>
+              <NumeratorCoefficient>9.99614276897e-05</NumeratorCoefficient>
+              <NumeratorCoefficient>-4.17623423498e-06</NumeratorCoefficient>
+              <NumeratorCoefficient>-0.000123442146958</NumeratorCoefficient>
+              <NumeratorCoefficient>0.000328634591312</NumeratorCoefficient>
+              <NumeratorCoefficient>-0.000510235142537</NumeratorCoefficient>
+              <NumeratorCoefficient>0.000501725190111</NumeratorCoefficient>
+              <NumeratorCoefficient>-0.000116871382672</NumeratorCoefficient>
+              <NumeratorCoefficient>-0.000749475220975</NumeratorCoefficient>
+              <NumeratorCoefficient>0.00200523162141</NumeratorCoefficient>
+              <NumeratorCoefficient>-0.00327961280804</NumeratorCoefficient>
+              <NumeratorCoefficient>0.00393668299586</NumeratorCoefficient>
+              <NumeratorCoefficient>-0.00322261839187</NumeratorCoefficient>
+              <NumeratorCoefficient>0.000542482588595</NumeratorCoefficient>
+              <NumeratorCoefficient>0.00419761642134</NumeratorCoefficient>
+              <NumeratorCoefficient>-0.0102965110088</NumeratorCoefficient>
+              <NumeratorCoefficient>0.0161419449849</NumeratorCoefficient>
+              <NumeratorCoefficient>-0.0193747087777</NumeratorCoefficient>
+              <NumeratorCoefficient>0.0173576811121</NumeratorCoefficient>
+              <NumeratorCoefficient>-0.00786980968797</NumeratorCoefficient>
+              <NumeratorCoefficient>-0.0101505543449</NumeratorCoefficient>
+              <NumeratorCoefficient>0.0360385607082</NumeratorCoefficient>
+              <NumeratorCoefficient>-0.0672110214057</NumeratorCoefficient>
+              <NumeratorCoefficient>0.0992542298999</NumeratorCoefficient>
+              <NumeratorCoefficient>-0.127288880056</NumeratorCoefficient>
+              <NumeratorCoefficient>0.146416261842</NumeratorCoefficient>
+              <NumeratorCoefficient>0.846760189977</NumeratorCoefficient>
+            </FIR>
+            <Decimation>
+              <InputSampleRate unit="HERTZ">100.0</InputSampleRate>
+              <Factor>1</Factor>
+              <Offset>0</Offset>
+              <Delay>0.3</Delay>
+              <Correction>0.3</Correction>
+            </Decimation>
+            <StageGain>
+              <Value>1.0</Value>
+              <Frequency>0.0</Frequency>
+            </StageGain>
+          </Stage>
+        </Response>
+      </Channel>
+      <Channel code="HLZ" startDate="2016-11-22T00:00:00.000000Z" restrictedStatus="open" locationCode="">
+        <Latitude unit="DEGREES">-20.40348</Latitude>
+        <Longitude unit="DEGREES">-69.63087</Longitude>
+        <Elevation>990.0</Elevation>
+        <Depth>0.0</Depth>
+        <Azimuth unit="DEGREES">0.0</Azimuth>
+        <Dip unit="DEGREES">-90.0</Dip>
+        <SampleRate unit="SAMPLES/S">100.0</SampleRate>
+        <SampleRateRatio>
+          <NumberSamples>100</NumberSamples>
+          <NumberSeconds>1</NumberSeconds>
+        </SampleRateRatio>
+        <ClockDrift unit="SECONDS/SAMPLE">0.0</ClockDrift>
+        <Sensor resourceId="Sensor/20181107193039.526125.528">
+          <Type>SM</Type>
+          <Description>GFZ:CX1980:FBA-EST/2.5/g=0</Description>
+          <Manufacturer>Kinemetrics</Manufacturer>
+          <Model>FBA-EST/2.5</Model>
+        </Sensor>
+        <DataLogger resourceId="Datalogger/20181107193039.526848.530">
+          <Description>GFZ:CX1980:CUBE/CX/g=1638400</Description>
+        </DataLogger>
+        <Response>
+          <InstrumentSensitivity>
+            <Value>417464.32</Value>
+            <Frequency>1.0</Frequency>
+            <InputUnits>
+              <Name>M/S**2</Name>
+              <Description>None</Description>
+            </InputUnits>
+            <OutputUnits>
+              <Name>COUNTS</Name>
+              <Description>None</Description>
+            </OutputUnits>
+          </InstrumentSensitivity>
+          <Stage number="1">
+            <PolesZeros name="GFZ:CX1980:FBA-EST/2.5/g=0" resourceId="ResponsePAZ/20181107193039.526326.529">
+              <InputUnits>
+                <Name>M/S**2</Name>
+              </InputUnits>
+              <OutputUnits>
+                <Name>V</Name>
+              </OutputUnits>
+              <PzTransferFunctionType>LAPLACE (RADIANS/SECOND)</PzTransferFunctionType>
+              <NormalizationFactor>24595684000000.0</NormalizationFactor>
+              <NormalizationFrequency unit="HERTZ">1.0</NormalizationFrequency>
+              <Pole number="0">
+                <Real>-981.0</Real>
+                <Imaginary>1009.0</Imaginary>
+              </Pole>
+              <Pole number="1">
+                <Real>-981.0</Real>
+                <Imaginary>-1009.0</Imaginary>
+              </Pole>
+              <Pole number="2">
+                <Real>-3290.0</Real>
+                <Imaginary>1263.0</Imaginary>
+              </Pole>
+              <Pole number="3">
+                <Real>-3290.0</Real>
+                <Imaginary>-1263.0</Imaginary>
+              </Pole>
+            </PolesZeros>
+            <StageGain>
+              <Value>0.2548</Value>
+              <Frequency>1.0</Frequency>
+            </StageGain>
+          </Stage>
+          <Stage number="2">
+            <Coefficients>
+              <InputUnits>
+                <Name>V</Name>
+              </InputUnits>
+              <OutputUnits>
+                <Name>COUNTS</Name>
+              </OutputUnits>
+              <CfTransferFunctionType>DIGITAL</CfTransferFunctionType>
+            </Coefficients>
+            <Decimation>
+              <InputSampleRate unit="HERTZ">100.0</InputSampleRate>
+              <Factor>1</Factor>
+              <Offset>0</Offset>
+              <Delay>0.0</Delay>
+              <Correction>0.0</Correction>
+            </Decimation>
+            <StageGain>
+              <Value>1638400.0</Value>
+              <Frequency>0.0</Frequency>
+            </StageGain>
+          </Stage>
+          <Stage number="3">
+            <FIR name="GFZ:CX1980:CUBE_FIR_2" resourceId="ResponseFIR/20181107193039.527581.532">
+              <InputUnits>
+                <Name>COUNTS</Name>
+              </InputUnits>
+              <OutputUnits>
+                <Name>COUNTS</Name>
+              </OutputUnits>
+              <Symmetry>ODD</Symmetry>
+              <NumeratorCoefficient>3.39893193186e-14</NumeratorCoefficient>
+              <NumeratorCoefficient>1.00136763789e-08</NumeratorCoefficient>
+              <NumeratorCoefficient>-3.04635124509e-08</NumeratorCoefficient>
+              <NumeratorCoefficient>-1.87220204145e-06</NumeratorCoefficient>
+              <NumeratorCoefficient>-1.29911185192e-06</NumeratorCoefficient>
+              <NumeratorCoefficient>9.99614276897e-05</NumeratorCoefficient>
+              <NumeratorCoefficient>-4.17623423498e-06</NumeratorCoefficient>
+              <NumeratorCoefficient>-0.000123442146958</NumeratorCoefficient>
+              <NumeratorCoefficient>0.000328634591312</NumeratorCoefficient>
+              <NumeratorCoefficient>-0.000510235142537</NumeratorCoefficient>
+              <NumeratorCoefficient>0.000501725190111</NumeratorCoefficient>
+              <NumeratorCoefficient>-0.000116871382672</NumeratorCoefficient>
+              <NumeratorCoefficient>-0.000749475220975</NumeratorCoefficient>
+              <NumeratorCoefficient>0.00200523162141</NumeratorCoefficient>
+              <NumeratorCoefficient>-0.00327961280804</NumeratorCoefficient>
+              <NumeratorCoefficient>0.00393668299586</NumeratorCoefficient>
+              <NumeratorCoefficient>-0.00322261839187</NumeratorCoefficient>
+              <NumeratorCoefficient>0.000542482588595</NumeratorCoefficient>
+              <NumeratorCoefficient>0.00419761642134</NumeratorCoefficient>
+              <NumeratorCoefficient>-0.0102965110088</NumeratorCoefficient>
+              <NumeratorCoefficient>0.0161419449849</NumeratorCoefficient>
+              <NumeratorCoefficient>-0.0193747087777</NumeratorCoefficient>
+              <NumeratorCoefficient>0.0173576811121</NumeratorCoefficient>
+              <NumeratorCoefficient>-0.00786980968797</NumeratorCoefficient>
+              <NumeratorCoefficient>-0.0101505543449</NumeratorCoefficient>
+              <NumeratorCoefficient>0.0360385607082</NumeratorCoefficient>
+              <NumeratorCoefficient>-0.0672110214057</NumeratorCoefficient>
+              <NumeratorCoefficient>0.0992542298999</NumeratorCoefficient>
+              <NumeratorCoefficient>-0.127288880056</NumeratorCoefficient>
+              <NumeratorCoefficient>0.146416261842</NumeratorCoefficient>
+              <NumeratorCoefficient>0.846760189977</NumeratorCoefficient>
+            </FIR>
+            <Decimation>
+              <InputSampleRate unit="HERTZ">100.0</InputSampleRate>
+              <Factor>1</Factor>
+              <Offset>0</Offset>
+              <Delay>0.3</Delay>
+              <Correction>0.3</Correction>
+            </Decimation>
+            <StageGain>
+              <Value>1.0</Value>
+              <Frequency>0.0</Frequency>
+            </StageGain>
+          </Stage>
+        </Response>
+      </Channel>
+    </Station>
+  </Network>
+</FDSNStationXML>
